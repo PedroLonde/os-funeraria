@@ -151,14 +151,43 @@ tr:hover td{background:var(--surface2)}
   <div class="content">
 
     <div class="page active" id="page-os">
-      <div class="filter-bar">
-        <div class="field"><label>Buscar</label><input type="text" id="busca-os" placeholder="ID ou falecido..." oninput="renderOS()"></div>
-        <div class="field"><label>Status</label>
+      <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <div class="field" style="min-width:160px;flex:2">
+          <label>Buscar</label>
+          <input type="text" id="busca-os" placeholder="ID ou falecido..." oninput="renderOS()">
+        </div>
+        <div class="field" style="min-width:110px;flex:1">
+          <label>Status</label>
           <select id="filtro-status" onchange="renderOS()">
-            <option value="">Todos</option><option value="aberta">Aberta</option><option value="concluida">Concluída</option>
+            <option value="">Todos</option>
+            <option value="aberta">Aberta</option>
+            <option value="concluida">Concluída</option>
           </select>
         </div>
-        <div id="btn-nova-os"></div>
+        <div class="field" style="min-width:130px;flex:1">
+          <label>Unidade</label>
+          <select id="filtro-unidade" onchange="renderOS()">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="field" style="min-width:130px;flex:1">
+          <label>Agente</label>
+          <select id="filtro-agente" onchange="renderOS()">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="field" style="min-width:150px;flex:1">
+          <label>Ordenar por</label>
+          <select id="filtro-ordem" onchange="renderOS()">
+            <option value="id_desc">ID (mais recente)</option>
+            <option value="id_asc">ID (mais antigo)</option>
+            <option value="nome_asc">Falecido A→Z</option>
+            <option value="nome_desc">Falecido Z→A</option>
+            <option value="agente_asc">Agente A→Z</option>
+            <option value="unidade_asc">Unidade A→Z</option>
+          </select>
+        </div>
+        <div id="btn-nova-os" style="align-self:flex-end"></div>
       </div>
       <div id="lista-os"></div>
     </div>
@@ -480,7 +509,7 @@ tr:hover td{background:var(--surface2)}
 
 <!-- MODAL VISUALIZAR OS -->
 <div class="modal-overlay" id="modal-visualizar">
-  <div class="modal" style="max-width:640px">
+  <div class="modal" style="max-width:720px">
     <div class="modal-header">
       <span class="modal-title">Ordem de Serviço</span>
       <button class="modal-close" onclick="fecharModal('modal-visualizar')">×</button>
@@ -619,17 +648,48 @@ async function carregarDados() {
 }
 
 // ── OS RENDER ──────────────────────────────────────────────────────────────
+function preencherFiltrosOS() {
+  // Unidades únicas nas OS
+  const unidades = [...new Set(state.os.map(o => o.unidade_nome).filter(Boolean))].sort();
+  const selUnid = document.getElementById('filtro-unidade');
+  const valUnid = selUnid.value;
+  selUnid.innerHTML = '<option value="">Todas</option>' + unidades.map(u => `<option value="${u}" ${u===valUnid?'selected':''}>${u}</option>`).join('');
+
+  // Agentes únicos nas OS
+  const agentes = [...new Map(state.os.map(o => [o.agente_id, o.agente_nome])).entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+  const selAg = document.getElementById('filtro-agente');
+  const valAg = selAg.value;
+  selAg.innerHTML = '<option value="">Todos</option>' + agentes.map(([id,nome]) => `<option value="${id}" ${id==valAg?'selected':''}>${nome}</option>`).join('');
+}
+
 function renderOS() {
+  preencherFiltrosOS();
   const container = document.getElementById('lista-os');
   const busca = document.getElementById('busca-os').value.toLowerCase();
   const filtroStatus = document.getElementById('filtro-status').value;
+  const filtroUnidade = document.getElementById('filtro-unidade').value;
+  const filtroAgente = document.getElementById('filtro-agente').value;
+  const ordem = document.getElementById('filtro-ordem').value;
   const p = state.user.perfil;
   const btnWrap = document.getElementById('btn-nova-os');
   if (['agente','admin'].includes(p)) btnWrap.innerHTML = '<button class="btn btn-primary" onclick="abrirModalOS()">+ Nova OS</button>';
 
-  let lista = state.os;
+  let lista = [...state.os];
   if (busca) lista = lista.filter(o => o.id_webluto.includes(busca) || (o.nome_falecido||'').toLowerCase().includes(busca));
   if (filtroStatus) lista = lista.filter(o => o.status === filtroStatus);
+  if (filtroUnidade) lista = lista.filter(o => o.unidade_nome === filtroUnidade);
+  if (filtroAgente) lista = lista.filter(o => o.agente_id == filtroAgente);
+
+  // Ordenação
+  lista.sort((a, b) => {
+    if (ordem === 'id_asc') return parseInt(a.id_webluto||0) - parseInt(b.id_webluto||0);
+    if (ordem === 'id_desc') return parseInt(b.id_webluto||0) - parseInt(a.id_webluto||0);
+    if (ordem === 'nome_asc') return (a.nome_falecido||'').localeCompare(b.nome_falecido||'');
+    if (ordem === 'nome_desc') return (b.nome_falecido||'').localeCompare(a.nome_falecido||'');
+    if (ordem === 'agente_asc') return (a.agente_nome||'').localeCompare(b.agente_nome||'');
+    if (ordem === 'unidade_asc') return (a.unidade_nome||'').localeCompare(b.unidade_nome||'');
+    return parseInt(b.id_webluto||0) - parseInt(a.id_webluto||0);
+  });
 
   if (!lista.length) { container.innerHTML = '<div class="empty">Nenhuma OS encontrada.</div>'; return; }
 
@@ -997,39 +1057,82 @@ function visualizarOS(id) {
   const os = state.os.find(o => o.id === id);
   if (!os) return;
   const horario = os.horario_sepultamento ? formatDateTime(os.horario_sepultamento) : 'Não informado';
+
   const itensHtml = os.itens.map((item, i) => {
     const opcoes = tryParse(item.opcoes_selecionadas, []);
     const faixas = tryParse(item.faixas, []);
     return `
-    <div style="border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:6px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <span style="font-weight:500;color:var(--accent)">${item.servico_nome}</span>
-        ${item.quantidade > 1 ? `<span style="font-size:11px;color:var(--warn)">× ${item.quantidade}</span>` : ''}
+    <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px">
+      <div style="background:var(--surface2);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent)">${item.servico_nome}</span>
+          ${item.quantidade > 1 ? `<span style="font-size:13px;color:var(--warn);font-weight:500">× ${item.quantidade}</span>` : ''}
+        </div>
+        ${item.motorista_nome ? `<span style="font-size:12px;color:var(--success)">🚗 ${item.motorista_nome}</span>` : ''}
       </div>
-      <div style="font-size:12px">${item.fornecedor_nome||'—'}</div>
-      ${item.fornecedor_endereco ? `<div style="font-size:11px;color:var(--text2)">📍 ${item.fornecedor_endereco}</div>` : ''}
-      ${opcoes.length ? `<div style="font-size:11px;color:var(--text2);margin-top:4px">✓ ${opcoes.join(', ')}</div>` : ''}
-      ${faixas.length ? faixas.map((f,i)=>`<div style="font-size:11px;color:var(--text3)">Faixa ${i+1}: ${f}</div>`).join('') : ''}
-      ${item.observacao ? `<div style="font-size:11px;color:var(--text3);font-style:italic">${item.observacao}</div>` : ''}
-      ${item.motorista_nome ? `<div style="font-size:11px;color:var(--success);margin-top:4px">🚗 ${item.motorista_nome}</div>` : ''}
+      <div style="padding:12px 16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:${opcoes.length||faixas.length||item.observacao?'10px':'0'}">
+          <div>
+            <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Fornecedor</span>
+            <span style="font-size:14px">${item.fornecedor_nome||'—'}</span>
+          </div>
+          ${item.fornecedor_endereco ? `
+          <div>
+            <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Endereço</span>
+            <span style="font-size:13px;color:var(--text2)">📍 ${item.fornecedor_endereco}</span>
+          </div>` : ''}
+        </div>
+        ${opcoes.length ? `
+        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:2px">
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px">Opções</span>
+          <div style="display:flex;flex-wrap:wrap;gap:5px">
+            ${opcoes.map(o=>`<span style="padding:3px 10px;border:1px solid var(--border2);border-radius:20px;font-size:12px;color:var(--text)">${o}</span>`).join('')}
+          </div>
+        </div>` : ''}
+        ${faixas.length ? `
+        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:8px">
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px">Faixas</span>
+          ${faixas.map((f,i)=>`
+          <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--text3);min-width:50px">Faixa ${i+1}</span>
+            <span style="font-size:13px;color:var(--text);border-left:2px solid var(--accent);padding-left:8px">${f}</span>
+          </div>`).join('')}
+        </div>` : ''}
+        ${item.observacao ? `
+        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:8px">
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Observação</span>
+          <span style="font-size:13px;color:var(--text2);font-style:italic">${item.observacao}</span>
+        </div>` : ''}
+      </div>
     </div>`;
   }).join('');
 
   document.getElementById('modal-visualizar-body').innerHTML = `
-    <div style="margin-bottom:16px">
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">
-        <span style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent)">${os.id_webluto}</span>
-        <span class="tag tag-${os.status}">${os.status}</span>
+    <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px">
+      <div style="background:var(--surface2);padding:16px 20px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+          <span style="font-family:'DM Serif Display',serif;font-size:26px;color:var(--accent)">${os.id_webluto}</span>
+          <span class="tag tag-${os.status}">${os.status}</span>
+        </div>
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text)">${os.nome_falecido}</div>
       </div>
-      <div style="font-size:16px;margin-bottom:10px">${os.nome_falecido}</div>
-      <div class="grid-3" style="font-size:12px;margin-bottom:10px">
-        <div><span style="color:var(--text2);display:block;font-size:10px;text-transform:uppercase;margin-bottom:2px">Horário</span>${horario}</div>
-        <div><span style="color:var(--text2);display:block;font-size:10px;text-transform:uppercase;margin-bottom:2px">Agente</span>${os.agente_nome}</div>
-        <div><span style="color:var(--text2);display:block;font-size:10px;text-transform:uppercase;margin-bottom:2px">Unidade</span>${os.unidade_nome||'—'}</div>
+      <div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+        <div>
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Horário Sepultamento</span>
+          <span style="font-size:15px;font-weight:500">${horario}</span>
+        </div>
+        <div>
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Agente</span>
+          <span style="font-size:15px">${os.agente_nome}</span>
+        </div>
+        <div>
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Unidade</span>
+          <span style="font-size:15px;color:var(--accent)">${os.unidade_nome||'—'}</span>
+        </div>
       </div>
-      ${os.observacoes ? `<div style="padding:8px;background:var(--surface2);border-radius:var(--radius);font-size:12px;color:var(--text2)">${os.observacoes}</div>` : ''}
+      ${os.observacoes ? `<div style="border-top:1px solid var(--border);padding:10px 20px;font-size:13px;color:var(--text2)">📝 ${os.observacoes}</div>` : ''}
     </div>
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:8px">Serviços</div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:10px">${os.itens.length} serviço(s)</div>
     ${itensHtml}`;
 
   // Print
@@ -1453,7 +1556,9 @@ function hideAlert(id) { document.getElementById(id)?.classList.remove('show'); 
 function formatDate(str) { if(!str) return ''; return str.substring(0,10).split('-').reverse().join('/'); }
 function formatDateTime(str) { if(!str) return ''; return str.substring(0,16).replace('T',' ').replace(/-/g,'/'); }
 
+// Fechar ao clicar fora — exceto modal-os e modal-seletor-servico
 document.querySelectorAll('.modal-overlay').forEach(o => {
+  if (o.id === 'modal-os' || o.id === 'modal-seletor-servico') return;
   o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); });
 });
 
