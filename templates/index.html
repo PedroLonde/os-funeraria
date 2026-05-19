@@ -6,102 +6,30 @@
 <title>Ordens de Serviço</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap');
-
   :root {
-    --bg: #0f0f0f;
-    --surface: #181818;
-    --surface2: #222222;
-    --border: #2a2a2a;
-    --border2: #333;
-    --text: #e8e4de;
-    --text2: #8a8480;
-    --text3: #555;
-    --accent: #c8a96e;
-    --accent2: #a08040;
-    --danger: #c05a5a;
-    --success: #5a9c6e;
-    --warn: #c09050;
-    --info: #5a7ab0;
-    --radius: 6px;
+    --bg: #0f0f0f; --surface: #181818; --surface2: #222;
+    --border: #2a2a2a; --border2: #333; --text: #e8e4de;
+    --text2: #8a8480; --text3: #555; --accent: #c8a96e;
+    --accent2: #a08040; --danger: #c05a5a; --success: #5a9c6e;
+    --warn: #c09050; --info: #5a7ab0; --radius: 6px;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 13px; }
 
-  body {
-    font-family: 'DM Mono', monospace;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 13px;
-  }
-
-  /* ── LOGIN ── */
-  #login-screen {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: var(--bg);
-  }
-
-  .login-box {
-    width: 340px;
-    padding: 48px 40px;
-    border: 1px solid var(--border2);
-    background: var(--surface);
-  }
-
-  .login-box h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 26px;
-    color: var(--accent);
-    margin-bottom: 4px;
-    letter-spacing: -0.5px;
-  }
-
-  .login-box p {
-    color: var(--text2);
-    font-size: 11px;
-    margin-bottom: 32px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
+  /* LOGIN */
+  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .login-box { width: 340px; padding: 48px 40px; border: 1px solid var(--border2); background: var(--surface); }
+  .login-box h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--accent); margin-bottom: 4px; }
+  .login-box p { color: var(--text2); font-size: 11px; margin-bottom: 32px; letter-spacing: 1px; text-transform: uppercase; }
 
   .field { margin-bottom: 16px; }
   .field label { display: block; font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-
-  input, select, textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    padding: 10px 12px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    border-radius: var(--radius);
-    outline: none;
-    transition: border-color 0.2s;
-  }
+  input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: 10px 12px; font-family: 'DM Mono', monospace; font-size: 13px; border-radius: var(--radius); outline: none; transition: border-color 0.2s; }
   input:focus, select:focus, textarea:focus { border-color: var(--accent); }
   select option { background: var(--surface); }
-  textarea { resize: vertical; min-height: 70px; }
+  textarea { resize: vertical; min-height: 60px; }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 9px 18px;
-    border: 1px solid var(--border2);
-    background: var(--surface2);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    cursor: pointer;
-    border-radius: var(--radius);
-    transition: all 0.15s;
-    text-decoration: none;
-    white-space: nowrap;
-  }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; border-radius: var(--radius); transition: all 0.15s; text-decoration: none; white-space: nowrap; }
   .btn:hover { border-color: var(--accent); color: var(--accent); }
   .btn-primary { background: var(--accent); color: #0f0f0f; border-color: var(--accent); font-weight: 500; }
   .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #0f0f0f; }
@@ -112,347 +40,126 @@
   .btn-sm { padding: 5px 10px; font-size: 11px; }
   .btn-full { width: 100%; justify-content: center; }
 
-  /* ── LAYOUT ── */
+  /* LAYOUT */
   #app { display: none; }
-
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    height: 52px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .topbar-brand {
-    font-family: 'DM Serif Display', serif;
-    font-size: 18px;
-    color: var(--accent);
-    letter-spacing: -0.3px;
-  }
-
-  .topbar-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--text2);
-    font-size: 11px;
-  }
-
-  .badge-perfil {
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 52px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .topbar-brand { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--accent); }
+  .topbar-user { display: flex; align-items: center; gap: 12px; color: var(--text2); font-size: 11px; }
+  .badge-perfil { padding: 2px 8px; border-radius: 20px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
   .badge-admin { background: #2a1f0a; color: var(--accent); border: 1px solid #3a2f1a; }
   .badge-agente { background: #0a1f2a; color: var(--info); border: 1px solid #1a2f3a; }
   .badge-motorista { background: #0a2a1a; color: var(--success); border: 1px solid #1a3a2a; }
   .badge-visualizador { background: #1a1a2a; color: #8a8ac0; border: 1px solid #2a2a3a; }
-
-  .nav {
-    display: flex;
-    gap: 2px;
-    padding: 12px 24px 0;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-
-  .nav-item {
-    padding: 8px 16px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text2);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
-    margin-bottom: -1px;
-  }
+  .nav { display: flex; gap: 2px; padding: 12px 24px 0; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .nav-item { padding: 8px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; margin-bottom: -1px; }
   .nav-item:hover { color: var(--text); }
   .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
-
   .content { padding: 24px; max-width: 1400px; }
-
   .page { display: none; }
   .page.active { display: block; }
 
-  /* ── CARDS / TABELAS ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 16px;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .card-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text2);
-  }
-
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text2); }
   .card-body { padding: 18px; }
 
   table { width: 100%; border-collapse: collapse; }
-  th {
-    text-align: left;
-    padding: 8px 12px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text3);
-    border-bottom: 1px solid var(--border);
-  }
-  td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-    vertical-align: middle;
-  }
+  th { text-align: left; padding: 8px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: middle; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--surface2); }
 
-  .tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
   .tag-aberta { background: #0a1f2a; color: var(--info); }
-  .tag-em_andamento { background: #2a1f0a; color: var(--warn); }
   .tag-concluida { background: #0a2a1a; color: var(--success); }
-  .tag-pendente { background: #1a1a1a; color: var(--text3); }
-  .tag-cancelada { background: #2a0a0a; color: var(--danger); }
 
-  /* ── MODAL ── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.8);
-    z-index: 200;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 40px 16px;
-    overflow-y: auto;
-  }
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
   .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    width: 100%;
-    max-width: 700px;
-    position: relative;
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 22px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .modal-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 18px;
-    color: var(--accent);
-  }
-
-  .modal-close {
-    background: none;
-    border: none;
-    color: var(--text2);
-    font-size: 20px;
-    cursor: pointer;
-    padding: 4px 8px;
-    line-height: 1;
-  }
+  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); width: 100%; max-width: 680px; position: relative; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--accent); }
+  .modal-close { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; padding: 4px 8px; }
   .modal-close:hover { color: var(--text); }
-
   .modal-body { padding: 22px; }
-  .modal-footer {
-    padding: 16px 22px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-  }
+  .modal-footer { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
 
-  /* ── ITENS OS ── */
-  .itens-list { display: flex; flex-direction: column; gap: 10px; }
+  /* OS CARD */
+  .os-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; }
+  .os-card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; user-select: none; }
+  .os-card-header:hover { background: var(--surface2); border-radius: var(--radius); }
+  .os-id { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--accent); }
+  .os-falecido { font-size: 13px; color: var(--text); }
+  .os-meta { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--text2); flex-wrap: wrap; }
+  .os-body { display: none; border-top: 1px solid var(--border); padding: 16px 18px; }
+  .os-body.open { display: block; }
 
-  .item-row {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-  }
+  .item-linha { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; padding: 10px 12px; background: var(--bg); border-radius: var(--radius); margin-bottom: 6px; font-size: 12px; }
+  .item-produto { font-weight: 500; color: var(--accent); }
+  .item-forn { color: var(--text); }
+  .item-end { color: var(--text2); font-size: 11px; }
 
-  .item-row-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .item-num {
-    font-size: 10px;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+  /* ITEM NA OS */
+  .item-bloco { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
+  .item-bloco-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .item-num { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
 
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
-  /* ── OS CARD ── */
-  .os-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 12px;
-  }
-
-  .os-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .os-card-header:hover { background: var(--surface2); }
-
-  .os-id {
-    font-family: 'DM Serif Display', serif;
-    font-size: 16px;
-    color: var(--accent);
-  }
-
-  .os-meta {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 11px;
-    color: var(--text2);
-  }
-
-  .os-body {
-    display: none;
-    border-top: 1px solid var(--border);
-    padding: 16px 18px;
-  }
-  .os-body.open { display: block; }
-
-  .item-detail {
-    display: grid;
-    grid-template-columns: 160px 1fr 1fr auto;
-    gap: 8px;
-    align-items: center;
-    padding: 8px 10px;
-    background: var(--bg);
-    border-radius: var(--radius);
-    margin-bottom: 6px;
-    font-size: 12px;
-  }
-
-  .item-tipo {
-    font-weight: 500;
-    color: var(--accent);
-    font-size: 11px;
-    text-transform: uppercase;
-  }
-
-  .item-fornecedor { color: var(--text); }
-  .item-local { color: var(--text2); font-size: 11px; }
-
-  /* ── FILTROS ── */
-  .filter-bar {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-
+  /* FILTROS */
+  .filter-bar { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
   .filter-bar .field { margin-bottom: 0; flex: 1; min-width: 140px; }
 
-  /* ── ALERTS ── */
-  .alert {
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    font-size: 12px;
-    margin-bottom: 14px;
-    display: none;
-  }
+  /* ALERTS */
+  .alert { padding: 10px 14px; border-radius: var(--radius); font-size: 12px; margin-bottom: 14px; display: none; }
   .alert.show { display: block; }
   .alert-error { background: #2a0a0a; border: 1px solid #4a1a1a; color: #e08080; }
   .alert-success { background: #0a2a1a; border: 1px solid #1a3a2a; color: #80c090; }
 
-  /* ── LOG ── */
-  .log-row td { font-size: 11px; }
-  .log-dados { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text3); }
+  /* CONFIRMAÇÃO */
+  .confirm-box { background: #1a0a0a; border: 1px solid var(--danger); border-radius: var(--radius); padding: 16px; margin-top: 12px; display: none; }
+  .confirm-box.show { display: block; }
+  .confirm-box p { color: #e08080; font-size: 12px; margin-bottom: 12px; }
 
-  /* ── EMPTY ── */
-  .empty {
-    text-align: center;
-    padding: 48px;
-    color: var(--text3);
-    font-size: 12px;
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .empty { text-align: center; padding: 48px; color: var(--text3); font-size: 12px; }
+
+  /* PRINT */
+  .print-area { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    .print-area, .print-area * { visibility: visible; }
+    .print-area { display: block !important; position: fixed; top: 0; left: 0; width: 100%; background: white; color: black; padding: 32px; font-family: Arial, sans-serif; font-size: 13px; }
+    .print-header { border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 12px; }
+    .print-header h1 { font-size: 20px; margin-bottom: 4px; }
+    .print-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+    .print-meta-item label { font-size: 10px; text-transform: uppercase; color: #666; display: block; }
+    .print-meta-item span { font-size: 14px; font-weight: bold; }
+    .print-items-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 10px; }
+    .print-item { border: 1px solid #ddd; padding: 10px 14px; margin-bottom: 6px; border-radius: 4px; }
+    .print-item-produto { font-weight: bold; font-size: 14px; }
+    .print-item-forn { color: #333; }
+    .print-item-end { color: #666; font-size: 12px; }
+    .print-obs { margin-top: 16px; padding: 10px; background: #f9f9f9; border-radius: 4px; font-size: 12px; color: #555; }
+    .no-print { display: none !important; }
   }
 
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 0;
-  }
-
-  .row { display: flex; gap: 10px; align-items: center; }
-  .flex-1 { flex: 1; }
-
-  .search-input-wrap { position: relative; }
-  .search-input-wrap input { padding-left: 32px; }
-  .search-icon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text3);
-    font-size: 12px;
-  }
-
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
   @media (max-width: 600px) {
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .item-detail { grid-template-columns: 1fr; }
+    .grid-2, .grid-3, .item-linha { grid-template-columns: 1fr; }
     .filter-bar { flex-direction: column; }
-    .topbar-brand { font-size: 15px; }
   }
 </style>
 </head>
 <body>
+
+<!-- PRINT AREA -->
+<div class="print-area" id="print-area"></div>
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -460,14 +167,8 @@
     <h1>OS Sistema</h1>
     <p>Ordens de Serviço</p>
     <div id="login-alert" class="alert alert-error"></div>
-    <div class="field">
-      <label>Login</label>
-      <input type="text" id="login-input" placeholder="seu.login" autocomplete="username">
-    </div>
-    <div class="field">
-      <label>Senha</label>
-      <input type="password" id="senha-input" placeholder="••••••••" autocomplete="current-password">
-    </div>
+    <div class="field"><label>Login</label><input type="text" id="login-input" autocomplete="username"></div>
+    <div class="field"><label>Senha</label><input type="password" id="senha-input" autocomplete="current-password"></div>
     <button class="btn btn-primary btn-full" style="margin-top:8px" onclick="doLogin()">Entrar</button>
   </div>
 </div>
@@ -482,27 +183,17 @@
       <button class="btn btn-sm" onclick="doLogout()">Sair</button>
     </div>
   </div>
-
   <div class="nav" id="nav-bar"></div>
-
   <div class="content">
 
-    <!-- PÁGINA: OS -->
+    <!-- OS -->
     <div class="page active" id="page-os">
       <div class="filter-bar">
-        <div class="field">
-          <label>Buscar ID Web Luto</label>
-          <div class="search-input-wrap">
-            <span class="search-icon">⌕</span>
-            <input type="text" id="busca-os" placeholder="Digite o ID..." oninput="renderOS()">
-          </div>
-        </div>
-        <div class="field">
-          <label>Status</label>
+        <div class="field"><label>Buscar</label><input type="text" id="busca-os" placeholder="ID Web Luto ou falecido..." oninput="renderOS()"></div>
+        <div class="field"><label>Status</label>
           <select id="filtro-status" onchange="renderOS()">
             <option value="">Todos</option>
             <option value="aberta">Aberta</option>
-            <option value="em_andamento">Em Andamento</option>
             <option value="concluida">Concluída</option>
           </select>
         </div>
@@ -511,47 +202,38 @@
       <div id="lista-os"></div>
     </div>
 
-    <!-- PÁGINA: EXPORTAR -->
+    <!-- EXPORTAR -->
     <div class="page" id="page-exportar">
       <div class="card" style="max-width:500px">
         <div class="card-header"><span class="card-title">Exportar Relatório</span></div>
         <div class="card-body">
           <div class="grid-2">
-            <div class="field">
-              <label>Data inicial</label>
-              <input type="date" id="exp-data-ini">
-            </div>
-            <div class="field">
-              <label>Data final</label>
-              <input type="date" id="exp-data-fim">
-            </div>
+            <div class="field"><label>Data inicial</label><input type="date" id="exp-data-ini"></div>
+            <div class="field"><label>Data final</label><input type="date" id="exp-data-fim"></div>
           </div>
-          <div class="field">
-            <label>Fornecedor (deixe vazio para todos)</label>
-            <input type="text" id="exp-fornecedor" placeholder="Ex: Ailton, Egnalos...">
-          </div>
+          <div class="field"><label>Fornecedor (vazio = todos)</label><input type="text" id="exp-fornecedor" placeholder="Ex: Ailton, Egnalos..."></div>
           <button class="btn btn-primary btn-full" onclick="exportar()">⬇ Baixar CSV (Excel)</button>
         </div>
       </div>
     </div>
 
-    <!-- PÁGINA: FORNECEDORES -->
+    <!-- FORNECEDORES -->
     <div class="page" id="page-fornecedores">
       <div class="card">
         <div class="card-header">
           <span class="card-title">Fornecedores</span>
-          <button class="btn btn-sm btn-primary" onclick="abrirModalFornecedor()">+ Novo</button>
+          <button class="btn btn-sm btn-primary" onclick="abrirModalFornecedor()">+ Novo Fornecedor</button>
         </div>
         <div style="overflow-x:auto">
           <table id="tabela-fornecedores">
-            <thead><tr><th>Nome</th><th>Tipo de Serviço</th><th>Contato</th><th></th></tr></thead>
+            <thead><tr><th>Nome</th><th>Endereço</th><th>Contato</th><th>Produtos/Serviços</th><th></th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- PÁGINA: USUÁRIOS (admin) -->
+    <!-- USUÁRIOS -->
     <div class="page" id="page-usuarios">
       <div class="card">
         <div class="card-header">
@@ -567,21 +249,21 @@
       </div>
     </div>
 
-    <!-- PÁGINA: LOGS (admin) -->
+    <!-- LOGS -->
     <div class="page" id="page-logs">
       <div class="card">
         <div class="card-header"><span class="card-title">Log de Alterações</span></div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th><th>Antes</th><th>Depois</th></tr></thead>
+            <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th></tr></thead>
             <tbody id="tbody-logs"></tbody>
           </table>
         </div>
       </div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /app -->
+  </div>
+</div>
 
 <!-- MODAL: NOVA/EDITAR OS -->
 <div class="modal-overlay" id="modal-os">
@@ -594,29 +276,19 @@
       <div id="os-alert" class="alert alert-error"></div>
       <input type="hidden" id="os-id-edit">
       <div class="grid-2">
-        <div class="field">
-          <label>ID Web Luto *</label>
-          <input type="text" id="os-webluto" placeholder="Ex: WL-2024-001">
-        </div>
-        <div class="field">
-          <label>Status</label>
-          <select id="os-status">
-            <option value="aberta">Aberta</option>
-            <option value="em_andamento">Em Andamento</option>
-            <option value="concluida">Concluída</option>
-          </select>
-        </div>
+        <div class="field"><label>ID Web Luto *</label><input type="text" id="os-webluto" placeholder="Ex: WL-2024-001"></div>
+        <div class="field"><label>Nome do Falecido *</label><input type="text" id="os-falecido" placeholder="Nome completo"></div>
       </div>
-      <div class="field">
-        <label>Observações</label>
-        <textarea id="os-obs" placeholder="Informações adicionais..."></textarea>
+      <div class="grid-2">
+        <div class="field"><label>Horário de Sepultamento</label><input type="datetime-local" id="os-horario"></div>
+        <div class="field"><label>Observações</label><input type="text" id="os-obs" placeholder="Informações adicionais"></div>
       </div>
       <div class="divider"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2)">Itens</span>
-        <button class="btn btn-sm" onclick="addItem()">+ Item</button>
+        <button class="btn btn-sm" onclick="addItemBloco()">+ Adicionar Item</button>
       </div>
-      <div class="itens-list" id="itens-container"></div>
+      <div id="itens-container"></div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="fecharModal('modal-os')">Cancelar</button>
@@ -627,20 +299,35 @@
 
 <!-- MODAL: FORNECEDOR -->
 <div class="modal-overlay" id="modal-fornecedor">
-  <div class="modal" style="max-width:420px">
+  <div class="modal" style="max-width:480px">
     <div class="modal-header">
-      <span class="modal-title">Fornecedor</span>
+      <span class="modal-title" id="modal-forn-titulo">Fornecedor</span>
       <button class="modal-close" onclick="fecharModal('modal-fornecedor')">×</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="forn-id-edit">
       <div class="field"><label>Nome *</label><input type="text" id="forn-nome"></div>
-      <div class="field"><label>Tipo de Serviço</label><input type="text" id="forn-tipo" placeholder="Ex: Tanato, Coroa, Urna..."></div>
+      <div class="field"><label>Endereço</label><input type="text" id="forn-end" placeholder="Rua, número, bairro..."></div>
       <div class="field"><label>Contato</label><input type="text" id="forn-contato" placeholder="Telefone ou e-mail"></div>
+      <div class="divider"></div>
+      <div id="produtos-section" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2)">Produtos / Serviços</span>
+          <button class="btn btn-sm" onclick="addProdutoForm()">+ Adicionar</button>
+        </div>
+        <div id="lista-produtos-forn"></div>
+        <div id="novo-produto-form" style="display:none;margin-top:10px">
+          <div style="display:flex;gap:8px">
+            <input type="text" id="novo-produto-nome" placeholder="Nome do produto/serviço" style="flex:1">
+            <button class="btn btn-sm btn-primary" onclick="salvarNovoProduto()">Salvar</button>
+            <button class="btn btn-sm" onclick="document.getElementById('novo-produto-form').style.display='none'">×</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="fecharModal('modal-fornecedor')">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvarFornecedor()">Salvar</button>
+      <button class="btn" onclick="fecharModal('modal-fornecedor')">Fechar</button>
+      <button class="btn btn-primary" id="btn-salvar-forn" onclick="salvarFornecedor()">Salvar</button>
     </div>
   </div>
 </div>
@@ -656,9 +343,8 @@
       <input type="hidden" id="usr-id-edit">
       <div class="field"><label>Nome *</label><input type="text" id="usr-nome"></div>
       <div class="field"><label>Login *</label><input type="text" id="usr-login"></div>
-      <div class="field"><label>Senha <span id="usr-senha-hint" style="color:var(--text3);font-size:10px">(obrigatório)</span></label><input type="password" id="usr-senha" placeholder="Mínimo 6 caracteres"></div>
-      <div class="field">
-        <label>Perfil</label>
+      <div class="field"><label>Senha <span id="usr-senha-hint" style="color:var(--text3);font-size:10px">(obrigatório)</span></label><input type="password" id="usr-senha"></div>
+      <div class="field"><label>Perfil</label>
         <select id="usr-perfil">
           <option value="agente">Agente</option>
           <option value="motorista">Motorista</option>
@@ -666,8 +352,7 @@
           <option value="admin">Admin</option>
         </select>
       </div>
-      <div class="field">
-        <label>Ativo</label>
+      <div class="field"><label>Ativo</label>
         <select id="usr-ativo"><option value="1">Sim</option><option value="0">Não</option></select>
       </div>
     </div>
@@ -680,7 +365,7 @@
 
 <!-- MODAL: ATRIBUIR MOTORISTA -->
 <div class="modal-overlay" id="modal-atribuir">
-  <div class="modal" style="max-width:400px">
+  <div class="modal" style="max-width:380px">
     <div class="modal-header">
       <span class="modal-title">Atribuir Motorista</span>
       <button class="modal-close" onclick="fecharModal('modal-atribuir')">×</button>
@@ -688,17 +373,8 @@
     <div class="modal-body">
       <input type="hidden" id="atr-item-id">
       <p style="font-size:12px;color:var(--text2);margin-bottom:16px" id="atr-descricao"></p>
-      <div class="field">
-        <label>Motorista</label>
+      <div class="field"><label>Motorista</label>
         <select id="atr-motorista"></select>
-      </div>
-      <div class="field">
-        <label>Status do Item</label>
-        <select id="atr-status">
-          <option value="pendente">Pendente</option>
-          <option value="em_andamento">Em Andamento</option>
-          <option value="concluida">Concluído</option>
-        </select>
       </div>
     </div>
     <div class="modal-footer">
@@ -708,23 +384,50 @@
   </div>
 </div>
 
+<!-- MODAL: VISUALIZAR OS (PRINT) -->
+<div class="modal-overlay" id="modal-visualizar">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <span class="modal-title">Ordem de Serviço</span>
+      <button class="modal-close" onclick="fecharModal('modal-visualizar')">×</button>
+    </div>
+    <div class="modal-body" id="modal-visualizar-body"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="fecharModal('modal-visualizar')">Fechar</button>
+      <button class="btn btn-primary" onclick="imprimirOS()">🖨 Imprimir / Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRMAR FECHAMENTO -->
+<div class="modal-overlay" id="modal-fechar-os">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title" style="color:var(--danger)">Fechar Ordem de Serviço</span>
+      <button class="modal-close" onclick="fecharModal('modal-fechar-os')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fechar-os-id">
+      <p style="font-size:13px;margin-bottom:8px">Você está fechando a OS:</p>
+      <p style="font-size:15px;color:var(--accent);font-family:'DM Serif Display',serif;margin-bottom:16px" id="fechar-os-descricao"></p>
+      <p style="font-size:12px;color:var(--text2)">Após fechada, a OS não poderá ser editada. Tem certeza?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="fecharModal('modal-fechar-os')">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarFechamentoOS()">Sim, fechar OS</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── STATE ──────────────────────────────────────────────────────────────────
-let state = {
-  user: null,
-  os: [],
-  fornecedores: [],
-  motoristas: [],
-  usuarios: []
-};
+let state = { user: null, os: [], fornecedores: [], motoristas: [], usuarios: [] };
+let itemBlocoCount = 0;
+let fornecedorEditandoId = null;
 
 // ── API ────────────────────────────────────────────────────────────────────
 async function api(method, path, body) {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include'
-  };
+  const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'include' };
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch('/api' + path, opts);
   const data = await r.json().catch(() => ({}));
@@ -736,16 +439,10 @@ async function doLogin() {
   const login = document.getElementById('login-input').value.trim();
   const senha = document.getElementById('senha-input').value;
   if (!login || !senha) return showAlert('login-alert', 'Preencha login e senha');
-
   const r = await api('POST', '/login', { login, senha });
-  if (r.ok) {
-    state.user = r.data;
-    iniciarApp();
-  } else {
-    showAlert('login-alert', r.data.msg || 'Erro ao fazer login');
-  }
+  if (r.ok) { state.user = r.data; iniciarApp(); }
+  else showAlert('login-alert', r.data.msg || 'Erro ao fazer login');
 }
-
 document.getElementById('senha-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('login-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
@@ -758,22 +455,17 @@ async function doLogout() {
 
 async function checkSession() {
   const r = await api('GET', '/me');
-  if (r.ok) {
-    state.user = r.data;
-    iniciarApp();
-  }
+  if (r.ok) { state.user = r.data; iniciarApp(); }
 }
 
-// ── APP INIT ───────────────────────────────────────────────────────────────
+// ── APP ────────────────────────────────────────────────────────────────────
 async function iniciarApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('user-nome').textContent = state.user.nome;
-
   const badge = document.getElementById('user-badge');
   badge.textContent = state.user.perfil;
   badge.className = 'badge-perfil badge-' + state.user.perfil;
-
   buildNav();
   await carregarDados();
   mostrarPagina('os');
@@ -783,20 +475,10 @@ function buildNav() {
   const p = state.user.perfil;
   const nav = document.getElementById('nav-bar');
   nav.innerHTML = '';
-
   const items = [{ id: 'os', label: 'Ordens de Serviço' }];
-
-  if (p === 'admin' || p === 'agente' || p === 'visualizador') {
-    items.push({ id: 'exportar', label: 'Exportar' });
-  }
-  if (p === 'admin' || p === 'agente') {
-    items.push({ id: 'fornecedores', label: 'Fornecedores' });
-  }
-  if (p === 'admin') {
-    items.push({ id: 'usuarios', label: 'Usuários' });
-    items.push({ id: 'logs', label: 'Logs' });
-  }
-
+  if (['admin','agente','visualizador'].includes(p)) items.push({ id: 'exportar', label: 'Exportar' });
+  if (['admin','agente'].includes(p)) items.push({ id: 'fornecedores', label: 'Fornecedores' });
+  if (p === 'admin') { items.push({ id: 'usuarios', label: 'Usuários' }); items.push({ id: 'logs', label: 'Logs' }); }
   items.forEach(item => {
     const el = document.createElement('div');
     el.className = 'nav-item';
@@ -812,7 +494,6 @@ function mostrarPagina(id) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id)?.classList.add('active');
   document.querySelector(`[data-page="${id}"]`)?.classList.add('active');
-
   if (id === 'os') renderOS();
   if (id === 'fornecedores') renderFornecedores();
   if (id === 'usuarios') renderUsuarios();
@@ -820,18 +501,13 @@ function mostrarPagina(id) {
 }
 
 async function carregarDados() {
-  const [osR, fornR, motR] = await Promise.all([
-    api('GET', '/os'),
-    api('GET', '/fornecedores'),
-    api('GET', '/motoristas')
-  ]);
+  const [osR, fornR, motR] = await Promise.all([api('GET','/os'), api('GET','/fornecedores'), api('GET','/motoristas')]);
   if (osR.ok) state.os = osR.data;
   if (fornR.ok) state.fornecedores = fornR.data;
   if (motR.ok) state.motoristas = motR.data;
-
   if (state.user.perfil === 'admin') {
-    const usrR = await api('GET', '/usuarios');
-    if (usrR.ok) state.usuarios = usrR.data;
+    const ur = await api('GET', '/usuarios');
+    if (ur.ok) state.usuarios = ur.data;
   }
 }
 
@@ -840,221 +516,197 @@ function renderOS() {
   const container = document.getElementById('lista-os');
   const busca = document.getElementById('busca-os').value.toLowerCase();
   const filtroStatus = document.getElementById('filtro-status').value;
+  const p = state.user.perfil;
 
-  // Botão nova OS
   const btnWrap = document.getElementById('btn-nova-os');
-  if (state.user.perfil === 'agente' || state.user.perfil === 'admin') {
+  if (['agente','admin'].includes(p)) {
     btnWrap.innerHTML = '<button class="btn btn-primary" onclick="abrirModalOS()">+ Nova OS</button>';
   }
 
   let lista = state.os;
-  if (busca) lista = lista.filter(o => o.id_webluto.toLowerCase().includes(busca));
+  if (busca) lista = lista.filter(o => o.id_webluto.toLowerCase().includes(busca) || (o.nome_falecido||'').toLowerCase().includes(busca));
   if (filtroStatus) lista = lista.filter(o => o.status === filtroStatus);
 
-  if (!lista.length) {
-    container.innerHTML = '<div class="empty">Nenhuma ordem de serviço encontrada.</div>';
-    return;
-  }
+  if (!lista.length) { container.innerHTML = '<div class="empty">Nenhuma ordem de serviço encontrada.</div>'; return; }
 
-  container.innerHTML = lista.map(os => `
+  container.innerHTML = lista.map(os => {
+    const horario = os.horario_sepultamento ? formatDateTime(os.horario_sepultamento) : '';
+    const isConcluida = os.status === 'concluida';
+    const podeEditar = ['agente','admin'].includes(p) && !isConcluida;
+    const podeFechar = ['agente','admin'].includes(p) && !isConcluida;
+
+    return `
     <div class="os-card">
       <div class="os-card-header" onclick="toggleOS(${os.id})">
-        <div style="display:flex;align-items:center;gap:14px">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
           <span class="os-id">${os.id_webluto}</span>
-          <span class="tag tag-${os.status}">${os.status.replace('_',' ')}</span>
+          <span class="os-falecido">${os.nome_falecido}</span>
+          <span class="tag tag-${os.status}">${os.status}</span>
         </div>
         <div class="os-meta">
+          ${horario ? `<span>⏰ ${horario}</span>` : ''}
           <span>${os.agente_nome}</span>
           <span>${formatDate(os.criado_em)}</span>
           <span style="color:var(--text3)">${os.itens.length} item(s)</span>
-          ${(state.user.perfil === 'agente' || state.user.perfil === 'admin') ? `
-            <button class="btn btn-sm" onclick="event.stopPropagation();editarOS(${os.id})">Editar</button>
-          ` : ''}
+          <button class="btn btn-sm" onclick="event.stopPropagation();visualizarOS(${os.id})">👁 Ver</button>
+          ${podeEditar ? `<button class="btn btn-sm" onclick="event.stopPropagation();editarOS(${os.id})">Editar</button>` : ''}
+          ${podeFechar ? `<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();abrirFecharOS(${os.id},'${os.id_webluto} — ${os.nome_falecido.replace(/'/g,"\\'")}')">Fechar OS</button>` : ''}
         </div>
       </div>
       <div class="os-body" id="os-body-${os.id}">
-        ${os.observacoes ? `<p style="font-size:12px;color:var(--text2);margin-bottom:12px">${os.observacoes}</p>` : ''}
+        ${os.observacoes ? `<p style="font-size:12px;color:var(--text2);margin-bottom:12px">📝 ${os.observacoes}</p>` : ''}
         ${os.itens.map(item => `
-          <div class="item-detail">
-            <span class="item-tipo">${item.tipo_servico}</span>
-            <span class="item-fornecedor">${item.fornecedor_nome || '—'} ${item.local_execucao ? '<br><span class="item-local">'+item.local_execucao+'</span>' : ''}</span>
-            <span>
-              <span class="tag tag-${item.status}">${item.status.replace('_',' ')}</span>
-              ${item.motorista_nome ? `<br><span style="font-size:11px;color:var(--text2);margin-top:4px;display:block">🚗 ${item.motorista_nome}</span>` : ''}
-            </span>
-            ${(state.user.perfil === 'motorista' || state.user.perfil === 'admin') ? `
-              <button class="btn btn-sm" onclick="abrirAtribuir(${item.id}, '${item.tipo_servico}', '${item.fornecedor_nome||''}')">Atribuir</button>
-            ` : '<span></span>'}
+          <div class="item-linha">
+            <span class="item-produto">${item.produto_nome || '—'}</span>
+            <span class="item-forn">${item.fornecedor_nome || '—'}</span>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span class="item-end">${item.fornecedor_endereco || ''}</span>
+              ${item.motorista_nome ? `<span style="font-size:11px;color:var(--success)">🚗 ${item.motorista_nome}</span>` : ''}
+              ${['motorista','admin','agente'].includes(p) ? `<button class="btn btn-sm" onclick="abrirAtribuir(${item.id},'${(item.produto_nome||'').replace(/'/g,"\\'")}','${(item.fornecedor_nome||'').replace(/'/g,"\\'")}')">Atribuir</button>` : ''}
+            </div>
           </div>
         `).join('')}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
-function toggleOS(id) {
-  const body = document.getElementById('os-body-' + id);
-  body.classList.toggle('open');
-}
+function toggleOS(id) { document.getElementById('os-body-' + id)?.classList.toggle('open'); }
 
 // ── MODAL OS ───────────────────────────────────────────────────────────────
-let itemCount = 0;
-
 function abrirModalOS() {
-  itemCount = 0;
+  itemBlocoCount = 0;
   document.getElementById('os-id-edit').value = '';
   document.getElementById('os-webluto').value = '';
+  document.getElementById('os-falecido').value = '';
+  document.getElementById('os-horario').value = '';
   document.getElementById('os-obs').value = '';
-  document.getElementById('os-status').value = 'aberta';
   document.getElementById('itens-container').innerHTML = '';
   document.getElementById('modal-os-titulo').textContent = 'Nova Ordem de Serviço';
   hideAlert('os-alert');
-  addItem();
+  addItemBloco();
   abrirModal('modal-os');
 }
 
 function editarOS(id) {
   const os = state.os.find(o => o.id === id);
   if (!os) return;
-  itemCount = 0;
+  itemBlocoCount = 0;
   document.getElementById('os-id-edit').value = os.id;
   document.getElementById('os-webluto').value = os.id_webluto;
+  document.getElementById('os-falecido').value = os.nome_falecido;
+  document.getElementById('os-horario').value = os.horario_sepultamento ? os.horario_sepultamento.replace(' ','T').substring(0,16) : '';
   document.getElementById('os-obs').value = os.observacoes || '';
-  document.getElementById('os-status').value = os.status;
   document.getElementById('modal-os-titulo').textContent = 'Editar OS — ' + os.id_webluto;
   document.getElementById('itens-container').innerHTML = '';
   hideAlert('os-alert');
-
   os.itens.forEach(item => {
-    addItem();
-    const idx = itemCount;
-    document.getElementById(`item-tipo-${idx}`).value = item.tipo_servico;
-    document.getElementById(`item-forn-${idx}`).value = item.fornecedor_nome || '';
-    document.getElementById(`item-local-${idx}`).value = item.local_execucao || '';
-    document.getElementById(`item-obs-${idx}`).value = item.observacao || '';
-    document.getElementById(`item-status-${idx}`).value = item.status;
-    // fornecedor_id
-    const sel = document.getElementById(`item-forn-sel-${idx}`);
-    if (sel && item.fornecedor_id) sel.value = item.fornecedor_id;
+    addItemBloco();
+    const idx = itemBlocoCount;
+    const selForn = document.getElementById(`bloco-forn-${idx}`);
+    if (selForn) {
+      selForn.value = item.fornecedor_id || '';
+      onFornecedorChange(idx, item.produto_id);
+    }
+    document.getElementById(`bloco-obs-${idx}`).value = item.observacao || '';
   });
-
   abrirModal('modal-os');
 }
 
-function addItem() {
-  itemCount++;
-  const idx = itemCount;
+function addItemBloco() {
+  itemBlocoCount++;
+  const idx = itemBlocoCount;
   const container = document.getElementById('itens-container');
-
-  const tiposServico = ['Tanato', 'Coroa de Flores', 'Urna', 'Ornamentação', 'Traslado', 'Translado', 'Velório', 'Cremação', 'Outro'];
-
   const div = document.createElement('div');
-  div.className = 'item-row';
-  div.id = `item-row-${idx}`;
+  div.className = 'item-bloco';
+  div.id = `bloco-${idx}`;
   div.innerHTML = `
-    <div class="item-row-header">
+    <div class="item-bloco-header">
       <span class="item-num">Item ${idx}</span>
-      <button class="btn btn-sm btn-danger" onclick="removerItem(${idx})">Remover</button>
+      <button class="btn btn-sm btn-danger" onclick="removerBloco(${idx})">Remover</button>
     </div>
-    <div class="grid-2">
-      <div class="field">
-        <label>Tipo de Serviço *</label>
-        <input list="tipos-list-${idx}" id="item-tipo-${idx}" placeholder="Ex: Tanato, Coroa...">
-        <datalist id="tipos-list-${idx}">
-          ${tiposServico.map(t => `<option value="${t}">`).join('')}
-        </datalist>
-      </div>
-      <div class="field">
+    <div class="grid-2" style="margin-bottom:10px">
+      <div class="field" style="margin-bottom:0">
         <label>Fornecedor *</label>
-        <select id="item-forn-sel-${idx}" onchange="onFornChange(${idx})">
-          <option value="">Selecione ou digite abaixo</option>
-          ${state.fornecedores.map(f => `<option value="${f.id}" data-nome="${f.nome}">${f.nome}</option>`).join('')}
-          <option value="_outro">Outro (digitar)</option>
+        <select id="bloco-forn-${idx}" onchange="onFornecedorChange(${idx})">
+          <option value="">Selecione o fornecedor</option>
+          ${state.fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Produto / Serviço *</label>
+        <select id="bloco-prod-${idx}" disabled>
+          <option value="">Selecione o fornecedor primeiro</option>
         </select>
       </div>
     </div>
-    <div class="grid-2">
-      <div class="field">
-        <label>Nome do Fornecedor (confirme ou edite)</label>
-        <input type="text" id="item-forn-${idx}" placeholder="Nome do fornecedor">
-      </div>
-      <div class="field">
-        <label>Local / Endereço</label>
-        <input type="text" id="item-local-${idx}" placeholder="Onde retirar ou executar">
-      </div>
-    </div>
-    <div class="grid-2">
-      <div class="field">
-        <label>Status</label>
-        <select id="item-status-${idx}">
-          <option value="pendente">Pendente</option>
-          <option value="em_andamento">Em Andamento</option>
-          <option value="concluida">Concluído</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Observação</label>
-        <input type="text" id="item-obs-${idx}" placeholder="Detalhe adicional">
-      </div>
+    <div class="field" style="margin-bottom:0">
+      <label>Observação do item</label>
+      <input type="text" id="bloco-obs-${idx}" placeholder="Ex: retirar às 14h, modelo específico...">
     </div>
   `;
   container.appendChild(div);
 }
 
-function onFornChange(idx) {
-  const sel = document.getElementById(`item-forn-sel-${idx}`);
-  const inp = document.getElementById(`item-forn-${idx}`);
-  if (sel.value && sel.value !== '_outro') {
-    const opt = sel.options[sel.selectedIndex];
-    inp.value = opt.dataset.nome;
-  } else if (sel.value === '_outro') {
-    inp.value = '';
-    inp.focus();
+async function onFornecedorChange(idx, preSelectProdId = null) {
+  const selForn = document.getElementById(`bloco-forn-${idx}`);
+  const selProd = document.getElementById(`bloco-prod-${idx}`);
+  const fornId = selForn.value;
+  if (!fornId) {
+    selProd.innerHTML = '<option value="">Selecione o fornecedor primeiro</option>';
+    selProd.disabled = true;
+    return;
   }
+  const r = await api('GET', `/fornecedores/${fornId}/produtos`);
+  if (!r.ok || !r.data.length) {
+    selProd.innerHTML = '<option value="">Nenhum produto cadastrado para este fornecedor</option>';
+    selProd.disabled = true;
+    return;
+  }
+  selProd.innerHTML = '<option value="">Selecione o produto/serviço</option>' +
+    r.data.map(p => `<option value="${p.id}" data-nome="${p.nome}">${p.nome}</option>`).join('');
+  selProd.disabled = false;
+  if (preSelectProdId) selProd.value = preSelectProdId;
 }
 
-function removerItem(idx) {
-  document.getElementById(`item-row-${idx}`)?.remove();
-}
+function removerBloco(idx) { document.getElementById(`bloco-${idx}`)?.remove(); }
 
 async function salvarOS() {
   const idEdit = document.getElementById('os-id-edit').value;
   const webluto = document.getElementById('os-webluto').value.trim();
+  const falecido = document.getElementById('os-falecido').value.trim();
   if (!webluto) return showAlert('os-alert', 'ID Web Luto é obrigatório');
+  if (!falecido) return showAlert('os-alert', 'Nome do falecido é obrigatório');
 
   const itens = [];
-  document.querySelectorAll('.item-row').forEach(row => {
-    const idx = row.id.replace('item-row-', '');
-    const tipo = document.getElementById(`item-tipo-${idx}`)?.value.trim();
-    if (!tipo) return;
-    const fornSel = document.getElementById(`item-forn-sel-${idx}`);
-    const fornNome = document.getElementById(`item-forn-${idx}`)?.value.trim();
+  document.querySelectorAll('.item-bloco').forEach(bloco => {
+    const idx = bloco.id.replace('bloco-', '');
+    const selForn = document.getElementById(`bloco-forn-${idx}`);
+    const selProd = document.getElementById(`bloco-prod-${idx}`);
+    if (!selForn?.value || !selProd?.value) return;
+    const forn = state.fornecedores.find(f => f.id == selForn.value);
+    const prodOpt = selProd.options[selProd.selectedIndex];
     itens.push({
-      tipo_servico: tipo,
-      fornecedor_id: (fornSel?.value && fornSel.value !== '_outro') ? parseInt(fornSel.value) : null,
-      fornecedor_nome: fornNome,
-      local_execucao: document.getElementById(`item-local-${idx}`)?.value.trim(),
-      status: document.getElementById(`item-status-${idx}`)?.value,
-      observacao: document.getElementById(`item-obs-${idx}`)?.value.trim()
+      fornecedor_id: parseInt(selForn.value),
+      fornecedor_nome: forn?.nome || '',
+      fornecedor_endereco: forn?.endereco || '',
+      produto_id: parseInt(selProd.value),
+      produto_nome: prodOpt?.dataset.nome || prodOpt?.text || '',
+      observacao: document.getElementById(`bloco-obs-${idx}`)?.value.trim() || ''
     });
   });
 
-  if (!itens.length) return showAlert('os-alert', 'Adicione pelo menos um item');
+  if (!itens.length) return showAlert('os-alert', 'Adicione pelo menos um item completo (fornecedor + produto)');
 
   const payload = {
     id_webluto: webluto,
+    nome_falecido: falecido,
+    horario_sepultamento: document.getElementById('os-horario').value || '',
     observacoes: document.getElementById('os-obs').value.trim(),
-    status: document.getElementById('os-status').value,
     itens
   };
 
-  let r;
-  if (idEdit) {
-    r = await api('PUT', `/os/${idEdit}`, payload);
-  } else {
-    r = await api('POST', '/os', payload);
-  }
-
+  const r = idEdit ? await api('PUT', `/os/${idEdit}`, payload) : await api('POST', '/os', payload);
   if (r.data.ok) {
     fecharModal('modal-os');
     await carregarDados();
@@ -1064,34 +716,103 @@ async function salvarOS() {
   }
 }
 
-// ── ATRIBUIR MOTORISTA ─────────────────────────────────────────────────────
-function abrirAtribuir(itemId, tipo, fornecedor) {
-  document.getElementById('atr-item-id').value = itemId;
-  document.getElementById('atr-descricao').textContent = `${tipo} — ${fornecedor}`;
+// ── FECHAR OS ──────────────────────────────────────────────────────────────
+function abrirFecharOS(id, descricao) {
+  document.getElementById('fechar-os-id').value = id;
+  document.getElementById('fechar-os-descricao').textContent = descricao;
+  abrirModal('modal-fechar-os');
+}
 
+async function confirmarFechamentoOS() {
+  const id = document.getElementById('fechar-os-id').value;
+  const r = await api('POST', `/os/${id}/fechar`);
+  if (r.data.ok) {
+    fecharModal('modal-fechar-os');
+    await carregarDados();
+    renderOS();
+  }
+}
+
+// ── VISUALIZAR / PRINT ─────────────────────────────────────────────────────
+function visualizarOS(id) {
+  const os = state.os.find(o => o.id === id);
+  if (!os) return;
+  const horario = os.horario_sepultamento ? formatDateTime(os.horario_sepultamento) : 'Não informado';
+  const html = `
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <span style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent)">${os.id_webluto}</span>
+        <span class="tag tag-${os.status}">${os.status}</span>
+      </div>
+      <div style="font-size:18px;margin-bottom:12px">${os.nome_falecido}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px">
+        <div><span style="color:var(--text2);display:block;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Horário Sepultamento</span>${horario}</div>
+        <div><span style="color:var(--text2);display:block;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Agente</span>${os.agente_nome}</div>
+        <div><span style="color:var(--text2);display:block;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Data OS</span>${formatDate(os.criado_em)}</div>
+      </div>
+      ${os.observacoes ? `<div style="margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--radius);font-size:12px;color:var(--text2)">📝 ${os.observacoes}</div>` : ''}
+    </div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:10px">Itens</div>
+    ${os.itens.map((item, i) => `
+      <div style="border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Item ${i+1}</div>
+        <div style="font-size:15px;font-weight:500;color:var(--accent);margin-bottom:4px">${item.produto_nome || '—'}</div>
+        <div style="font-size:13px;margin-bottom:2px">${item.fornecedor_nome || '—'}</div>
+        ${item.fornecedor_endereco ? `<div style="font-size:12px;color:var(--text2)">📍 ${item.fornecedor_endereco}</div>` : ''}
+        ${item.motorista_nome ? `<div style="font-size:12px;color:var(--success);margin-top:4px">🚗 ${item.motorista_nome}</div>` : ''}
+        ${item.observacao ? `<div style="font-size:12px;color:var(--text2);margin-top:4px;font-style:italic">${item.observacao}</div>` : ''}
+      </div>
+    `).join('')}
+  `;
+  document.getElementById('modal-visualizar-body').innerHTML = html;
+
+  // Prepara print
+  const printHtml = `
+    <div class="print-header">
+      <h1>Ordem de Serviço — ${os.id_webluto}</h1>
+      <div>${os.nome_falecido}</div>
+    </div>
+    <div class="print-meta">
+      <div class="print-meta-item"><label>Horário Sepultamento</label><span>${horario}</span></div>
+      <div class="print-meta-item"><label>Agente</label><span>${os.agente_nome}</span></div>
+      <div class="print-meta-item"><label>Data OS</label><span>${formatDate(os.criado_em)}</span></div>
+      <div class="print-meta-item"><label>Status</label><span>${os.status}</span></div>
+    </div>
+    <div class="print-items-title">Itens</div>
+    ${os.itens.map((item, i) => `
+      <div class="print-item">
+        <div style="font-size:11px;color:#666;margin-bottom:4px">Item ${i+1}</div>
+        <div class="print-item-produto">${item.produto_nome || '—'}</div>
+        <div class="print-item-forn">${item.fornecedor_nome || '—'}</div>
+        ${item.fornecedor_endereco ? `<div class="print-item-end">📍 ${item.fornecedor_endereco}</div>` : ''}
+        ${item.motorista_nome ? `<div style="font-size:12px;color:#2a7a4a">🚗 ${item.motorista_nome}</div>` : ''}
+        ${item.observacao ? `<div style="font-size:12px;color:#666;font-style:italic">${item.observacao}</div>` : ''}
+      </div>
+    `).join('')}
+    ${os.observacoes ? `<div class="print-obs">Observações: ${os.observacoes}</div>` : ''}
+  `;
+  document.getElementById('print-area').innerHTML = printHtml;
+  abrirModal('modal-visualizar');
+}
+
+function imprimirOS() { window.print(); }
+
+// ── ATRIBUIR MOTORISTA ─────────────────────────────────────────────────────
+function abrirAtribuir(itemId, produto, fornecedor) {
+  document.getElementById('atr-item-id').value = itemId;
+  document.getElementById('atr-descricao').textContent = `${produto} — ${fornecedor}`;
   const sel = document.getElementById('atr-motorista');
   sel.innerHTML = '<option value="">Nenhum</option>' +
     state.motoristas.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
-
-  // pré-selecionar o próprio motorista
-  if (state.user.perfil === 'motorista') {
-    sel.value = state.user.id;
-  }
-
+  if (state.user.perfil === 'motorista') sel.value = state.user.id;
   abrirModal('modal-atribuir');
 }
 
 async function salvarAtribuicao() {
   const itemId = document.getElementById('atr-item-id').value;
   const motoristaId = document.getElementById('atr-motorista').value || null;
-  const status = document.getElementById('atr-status').value;
-
-  const r = await api('POST', `/item/${itemId}/atribuir`, { motorista_id: motoristaId ? parseInt(motoristaId) : null, status });
-  if (r.data.ok) {
-    fecharModal('modal-atribuir');
-    await carregarDados();
-    renderOS();
-  }
+  const r = await api('POST', `/item/${itemId}/atribuir`, { motorista_id: motoristaId ? parseInt(motoristaId) : null });
+  if (r.data.ok) { fecharModal('modal-atribuir'); await carregarDados(); renderOS(); }
 }
 
 // ── FORNECEDORES ───────────────────────────────────────────────────────────
@@ -1100,48 +821,107 @@ function renderFornecedores() {
   tbody.innerHTML = state.fornecedores.map(f => `
     <tr>
       <td>${f.nome}</td>
-      <td>${f.tipo_servico || '—'}</td>
-      <td>${f.contato || '—'}</td>
+      <td style="color:var(--text2)">${f.endereco || '—'}</td>
+      <td style="color:var(--text2)">${f.contato || '—'}</td>
+      <td><button class="btn btn-sm" onclick="gerenciarProdutos(${f.id})">Produtos/Serviços</button></td>
       <td><button class="btn btn-sm" onclick="editarFornecedor(${f.id})">Editar</button></td>
     </tr>
-  `).join('') || '<tr><td colspan="4" class="empty">Nenhum fornecedor.</td></tr>';
+  `).join('') || '<tr><td colspan="5" class="empty">Nenhum fornecedor.</td></tr>';
 }
 
 function abrirModalFornecedor() {
+  fornecedorEditandoId = null;
   document.getElementById('forn-id-edit').value = '';
   document.getElementById('forn-nome').value = '';
-  document.getElementById('forn-tipo').value = '';
+  document.getElementById('forn-end').value = '';
   document.getElementById('forn-contato').value = '';
+  document.getElementById('produtos-section').style.display = 'none';
+  document.getElementById('modal-forn-titulo').textContent = 'Novo Fornecedor';
+  document.getElementById('btn-salvar-forn').style.display = '';
   abrirModal('modal-fornecedor');
 }
 
 function editarFornecedor(id) {
   const f = state.fornecedores.find(x => x.id === id);
   if (!f) return;
+  fornecedorEditandoId = id;
   document.getElementById('forn-id-edit').value = f.id;
   document.getElementById('forn-nome').value = f.nome;
-  document.getElementById('forn-tipo').value = f.tipo_servico || '';
+  document.getElementById('forn-end').value = f.endereco || '';
   document.getElementById('forn-contato').value = f.contato || '';
+  document.getElementById('produtos-section').style.display = 'none';
+  document.getElementById('modal-forn-titulo').textContent = 'Editar Fornecedor';
+  document.getElementById('btn-salvar-forn').style.display = '';
   abrirModal('modal-fornecedor');
+}
+
+async function gerenciarProdutos(id) {
+  const f = state.fornecedores.find(x => x.id === id);
+  if (!f) return;
+  fornecedorEditandoId = id;
+  document.getElementById('forn-id-edit').value = f.id;
+  document.getElementById('forn-nome').value = f.nome;
+  document.getElementById('forn-end').value = f.endereco || '';
+  document.getElementById('forn-contato').value = f.contato || '';
+  document.getElementById('modal-forn-titulo').textContent = `Produtos — ${f.nome}`;
+  document.getElementById('btn-salvar-forn').style.display = 'none';
+  document.getElementById('produtos-section').style.display = 'block';
+  document.getElementById('novo-produto-form').style.display = 'none';
+  await carregarProdutosForn(id);
+  abrirModal('modal-fornecedor');
+}
+
+async function carregarProdutosForn(id) {
+  const r = await api('GET', `/fornecedores/${id}/produtos`);
+  const lista = document.getElementById('lista-produtos-forn');
+  if (!r.ok || !r.data.length) {
+    lista.innerHTML = '<p style="font-size:12px;color:var(--text3);padding:8px 0">Nenhum produto cadastrado.</p>';
+    return;
+  }
+  lista.innerHTML = r.data.map(p => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border-radius:var(--radius);margin-bottom:6px">
+      <span style="font-size:13px">${p.nome}</span>
+      <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},${id})">Remover</button>
+    </div>
+  `).join('');
+}
+
+function addProdutoForm() {
+  document.getElementById('novo-produto-form').style.display = 'block';
+  document.getElementById('novo-produto-nome').value = '';
+  document.getElementById('novo-produto-nome').focus();
+}
+
+async function salvarNovoProduto() {
+  const nome = document.getElementById('novo-produto-nome').value.trim();
+  if (!nome) return;
+  const r = await api('POST', `/fornecedores/${fornecedorEditandoId}/produtos`, { nome });
+  if (r.data.ok) {
+    document.getElementById('novo-produto-form').style.display = 'none';
+    await carregarProdutosForn(fornecedorEditandoId);
+  }
+}
+
+async function deletarProduto(pid, fid) {
+  const r = await api('DELETE', `/produtos/${pid}`);
+  if (r.data.ok) await carregarProdutosForn(fid);
 }
 
 async function salvarFornecedor() {
   const id = document.getElementById('forn-id-edit').value;
   const payload = {
     nome: document.getElementById('forn-nome').value.trim(),
-    tipo_servico: document.getElementById('forn-tipo').value.trim(),
+    endereco: document.getElementById('forn-end').value.trim(),
     contato: document.getElementById('forn-contato').value.trim()
   };
   if (!payload.nome) return alert('Nome é obrigatório');
-
   let r;
   if (id) r = await api('PUT', `/fornecedores/${id}`, payload);
   else r = await api('POST', '/fornecedores', payload);
-
   if (r.data.ok) {
-    fecharModal('modal-fornecedor');
     const fr = await api('GET', '/fornecedores');
     if (fr.ok) state.fornecedores = fr.data;
+    fecharModal('modal-fornecedor');
     renderFornecedores();
   }
 }
@@ -1195,22 +975,17 @@ async function salvarUsuario() {
     perfil: document.getElementById('usr-perfil').value,
     ativo: parseInt(document.getElementById('usr-ativo').value)
   };
-
   if (!payload.nome) return alert('Nome é obrigatório');
   if (!id && !payload.senha) return alert('Senha é obrigatória para novo usuário');
-
   let r;
   if (id) r = await api('PUT', `/usuarios/${id}`, payload);
   else r = await api('POST', '/usuarios', payload);
-
   if (r.data.ok) {
     fecharModal('modal-usuario');
     const ur = await api('GET', '/usuarios');
     if (ur.ok) state.usuarios = ur.data;
     renderUsuarios();
-  } else {
-    alert(r.data.msg || 'Erro ao salvar');
-  }
+  } else { alert(r.data.msg || 'Erro ao salvar'); }
 }
 
 // ── EXPORTAR ───────────────────────────────────────────────────────────────
@@ -1218,12 +993,10 @@ function exportar() {
   const ini = document.getElementById('exp-data-ini').value;
   const fim = document.getElementById('exp-data-fim').value;
   const forn = document.getElementById('exp-fornecedor').value;
-
   let url = '/api/exportar?';
   if (ini) url += `data_ini=${ini}&`;
   if (fim) url += `data_fim=${fim}&`;
   if (forn) url += `fornecedor=${encodeURIComponent(forn)}&`;
-
   window.location.href = url;
 }
 
@@ -1233,44 +1006,26 @@ async function carregarLogs() {
   if (!r.ok) return;
   const tbody = document.getElementById('tbody-logs');
   tbody.innerHTML = r.data.map(l => `
-    <tr class="log-row">
+    <tr>
       <td>${formatDateTime(l.data_hora)}</td>
       <td>${l.usuario_nome}</td>
       <td>${l.acao}</td>
-      <td class="log-dados">${l.dados_anteriores ? JSON.stringify(JSON.parse(l.dados_anteriores)).substring(0, 80) + '...' : '—'}</td>
-      <td class="log-dados">${l.dados_novos ? JSON.stringify(JSON.parse(l.dados_novos)).substring(0, 80) + '...' : '—'}</td>
     </tr>
-  `).join('') || '<tr><td colspan="5" class="empty">Nenhum log.</td></tr>';
+  `).join('') || '<tr><td colspan="3" class="empty">Nenhum log.</td></tr>';
 }
 
 // ── UTILITÁRIOS ────────────────────────────────────────────────────────────
 function abrirModal(id) { document.getElementById(id).classList.add('open'); }
 function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function showAlert(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.classList.add('show');
-}
+function showAlert(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('show'); }
 function hideAlert(id) { document.getElementById(id)?.classList.remove('show'); }
+function formatDate(str) { if (!str) return ''; return str.substring(0,10).split('-').reverse().join('/'); }
+function formatDateTime(str) { if (!str) return ''; return str.substring(0,16).replace('T',' ').replace(/-/g,'/'); }
 
-function formatDate(str) {
-  if (!str) return '';
-  return str.substring(0, 10).split('-').reverse().join('/');
-}
-function formatDateTime(str) {
-  if (!str) return '';
-  return str.substring(0, 16).replace('T', ' ').replace(/-/g, '/');
-}
-
-// Fechar modal clicando fora
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('open');
-  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
 });
 
-// ── INIT ───────────────────────────────────────────────────────────────────
 checkSession();
 </script>
 </body>
