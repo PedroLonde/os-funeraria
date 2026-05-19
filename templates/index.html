@@ -204,14 +204,25 @@
 
     <!-- EXPORTAR -->
     <div class="page" id="page-exportar">
-      <div class="card" style="max-width:500px">
+      <div class="card" style="max-width:560px">
         <div class="card-header"><span class="card-title">Exportar Relatório</span></div>
         <div class="card-body">
           <div class="grid-2">
             <div class="field"><label>Data inicial</label><input type="date" id="exp-data-ini"></div>
             <div class="field"><label>Data final</label><input type="date" id="exp-data-fim"></div>
           </div>
-          <div class="field"><label>Fornecedor (vazio = todos)</label><input type="text" id="exp-fornecedor" placeholder="Ex: Ailton, Egnalos..."></div>
+          <div class="field">
+            <label>Fornecedor</label>
+            <select id="exp-fornecedor" onchange="atualizarProdutosExport()">
+              <option value="">Todos os fornecedores</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Produto / Serviço</label>
+            <select id="exp-produto">
+              <option value="">Todos os produtos</option>
+            </select>
+          </div>
           <button class="btn btn-primary btn-full" onclick="exportar()">⬇ Baixar CSV (Excel)</button>
         </div>
       </div>
@@ -276,11 +287,11 @@
       <div id="os-alert" class="alert alert-error"></div>
       <input type="hidden" id="os-id-edit">
       <div class="grid-2">
-        <div class="field"><label>ID Web Luto *</label><input type="text" id="os-webluto" placeholder="Ex: WL-2024-001"></div>
+        <div class="field"><label>ID Web Luto *</label><input type="number" id="os-webluto" placeholder="Ex: 12345" min="1" step="1" style="appearance:textfield;-moz-appearance:textfield"></div>
         <div class="field"><label>Nome do Falecido *</label><input type="text" id="os-falecido" placeholder="Nome completo"></div>
       </div>
       <div class="grid-2">
-        <div class="field"><label>Horário de Sepultamento</label><input type="datetime-local" id="os-horario"></div>
+        <div class="field"><label>Horário de Sepultamento</label><input type="datetime-local" id="os-horario" step="60"></div>
         <div class="field"><label>Observações</label><input type="text" id="os-obs" placeholder="Informações adicionais"></div>
       </div>
       <div class="divider"></div>
@@ -317,8 +328,9 @@
         </div>
         <div id="lista-produtos-forn"></div>
         <div id="novo-produto-form" style="display:none;margin-top:10px">
-          <div style="display:flex;gap:8px">
-            <input type="text" id="novo-produto-nome" placeholder="Nome do produto/serviço" style="flex:1">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="text" id="novo-produto-nome" placeholder="Nome do produto/serviço" style="flex:2;min-width:150px">
+            <input type="number" id="novo-produto-custo" placeholder="Custo R$" min="0" step="0.01" style="flex:1;min-width:90px">
             <button class="btn btn-sm btn-primary" onclick="salvarNovoProduto()">Salvar</button>
             <button class="btn btn-sm" onclick="document.getElementById('novo-produto-form').style.display='none'">×</button>
           </div>
@@ -495,6 +507,7 @@ function mostrarPagina(id) {
   document.getElementById('page-' + id)?.classList.add('active');
   document.querySelector(`[data-page="${id}"]`)?.classList.add('active');
   if (id === 'os') renderOS();
+  if (id === 'exportar') preencherFiltrosExport();
   if (id === 'fornecedores') renderFornecedores();
   if (id === 'usuarios') renderUsuarios();
   if (id === 'logs') carregarLogs();
@@ -664,7 +677,7 @@ async function onFornecedorChange(idx, preSelectProdId = null) {
     return;
   }
   selProd.innerHTML = '<option value="">Selecione o produto/serviço</option>' +
-    r.data.map(p => `<option value="${p.id}" data-nome="${p.nome}">${p.nome}</option>`).join('');
+    r.data.map(p => `<option value="${p.id}" data-nome="${p.nome}" data-custo="${p.custo||0}">${p.nome}</option>`).join('');
   selProd.disabled = false;
   if (preSelectProdId) selProd.value = preSelectProdId;
 }
@@ -692,6 +705,7 @@ async function salvarOS() {
       fornecedor_endereco: forn?.endereco || '',
       produto_id: parseInt(selProd.value),
       produto_nome: prodOpt?.dataset.nome || prodOpt?.text || '',
+      custo: parseFloat(prodOpt?.dataset.custo || 0),
       observacao: document.getElementById(`bloco-obs-${idx}`)?.value.trim() || ''
     });
   });
@@ -880,7 +894,8 @@ async function carregarProdutosForn(id) {
   }
   lista.innerHTML = r.data.map(p => `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border-radius:var(--radius);margin-bottom:6px">
-      <span style="font-size:13px">${p.nome}</span>
+      <span style="font-size:13px;flex:1">${p.nome}</span>
+      <span style="font-size:12px;color:var(--accent);margin-right:12px">R$ ${(p.custo||0).toFixed(2).replace('.',',')}</span>
       <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},${id})">Remover</button>
     </div>
   `).join('');
@@ -894,8 +909,9 @@ function addProdutoForm() {
 
 async function salvarNovoProduto() {
   const nome = document.getElementById('novo-produto-nome').value.trim();
+  const custo = parseFloat(document.getElementById('novo-produto-custo').value) || 0;
   if (!nome) return;
-  const r = await api('POST', `/fornecedores/${fornecedorEditandoId}/produtos`, { nome });
+  const r = await api('POST', `/fornecedores/${fornecedorEditandoId}/produtos`, { nome, custo });
   if (r.data.ok) {
     document.getElementById('novo-produto-form').style.display = 'none';
     await carregarProdutosForn(fornecedorEditandoId);
@@ -989,14 +1005,35 @@ async function salvarUsuario() {
 }
 
 // ── EXPORTAR ───────────────────────────────────────────────────────────────
+function preencherFiltrosExport() {
+  const selForn = document.getElementById('exp-fornecedor');
+  selForn.innerHTML = '<option value="">Todos os fornecedores</option>' +
+    state.fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
+  document.getElementById('exp-produto').innerHTML = '<option value="">Todos os produtos</option>';
+}
+
+async function atualizarProdutosExport() {
+  const fid = document.getElementById('exp-fornecedor').value;
+  const sel = document.getElementById('exp-produto');
+  if (!fid) {
+    sel.innerHTML = '<option value="">Todos os produtos</option>';
+    return;
+  }
+  const r = await api('GET', `/fornecedores/${fid}/produtos`);
+  sel.innerHTML = '<option value="">Todos os produtos</option>' +
+    (r.ok ? r.data.map(p => `<option value="${p.id}">${p.nome}</option>`).join('') : '');
+}
+
 function exportar() {
   const ini = document.getElementById('exp-data-ini').value;
   const fim = document.getElementById('exp-data-fim').value;
   const forn = document.getElementById('exp-fornecedor').value;
+  const prod = document.getElementById('exp-produto').value;
   let url = '/api/exportar?';
   if (ini) url += `data_ini=${ini}&`;
   if (fim) url += `data_fim=${fim}&`;
-  if (forn) url += `fornecedor=${encodeURIComponent(forn)}&`;
+  if (forn) url += `fornecedor=${forn}&`;
+  if (prod) url += `produto=${prod}&`;
   window.location.href = url;
 }
 
