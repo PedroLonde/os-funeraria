@@ -53,6 +53,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         fornecedor_id INTEGER NOT NULL,
         nome TEXT NOT NULL,
+        custo REAL DEFAULT 0,
         ativo INTEGER DEFAULT 1,
         FOREIGN KEY(fornecedor_id) REFERENCES fornecedores(id)
     )''')
@@ -78,6 +79,7 @@ def init_db():
         fornecedor_endereco TEXT,
         produto_id INTEGER,
         produto_nome TEXT,
+        custo REAL DEFAULT 0,
         motorista_id INTEGER,
         observacao TEXT,
         FOREIGN KEY(os_id) REFERENCES ordens_servico(id),
@@ -253,7 +255,8 @@ def criar_produto(fid):
         return jsonify({'ok': False}), 403
     data = request.json
     conn = get_db()
-    conn.execute("INSERT INTO produtos (fornecedor_id, nome) VALUES (?, ?)", (fid, data['nome']))
+    conn.execute("INSERT INTO produtos (fornecedor_id, nome, custo) VALUES (?, ?, ?)",
+                 (fid, data['nome'], data.get('custo', 0)))
     conn.commit()
     conn.close()
     return jsonify({'ok': True})
@@ -264,10 +267,24 @@ def editar_produto(pid):
         return jsonify({'ok': False}), 403
     data = request.json
     conn = get_db()
-    conn.execute("UPDATE produtos SET nome=?, ativo=? WHERE id=?", (data['nome'], data.get('ativo',1), pid))
+    conn.execute("UPDATE produtos SET nome=?, custo=?, ativo=? WHERE id=?",
+                 (data['nome'], data.get('custo', 0), data.get('ativo',1), pid))
     conn.commit()
     conn.close()
     return jsonify({'ok': True})
+
+@app.route('/api/produtos/todos')
+def listar_todos_produtos():
+    if not require_auth():
+        return jsonify({'ok': False}), 401
+    conn = get_db()
+    rows = conn.execute('''
+        SELECT p.id, p.nome, p.custo, f.nome as fornecedor_nome, f.id as fornecedor_id
+        FROM produtos p JOIN fornecedores f ON p.fornecedor_id = f.id
+        WHERE p.ativo=1 ORDER BY p.nome
+    ''').fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
 
 @app.route('/api/produtos/<int:pid>', methods=['DELETE'])
 def deletar_produto(pid):
@@ -323,11 +340,11 @@ def criar_os():
                session['user_id'], data.get('observacoes', '')))
     os_id = c.lastrowid
     for item in data.get('itens', []):
-        c.execute('''INSERT INTO itens_os (os_id, fornecedor_id, fornecedor_nome, fornecedor_endereco, produto_id, produto_nome, observacao)
-                     VALUES (?, ?, ?, ?, ?, ?, ?)''',
+        c.execute('''INSERT INTO itens_os (os_id, fornecedor_id, fornecedor_nome, fornecedor_endereco, produto_id, produto_nome, custo, observacao)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
                   (os_id, item.get('fornecedor_id'), item.get('fornecedor_nome',''),
                    item.get('fornecedor_endereco',''), item.get('produto_id'), item.get('produto_nome',''),
-                   item.get('observacao','')))
+                   item.get('custo', 0), item.get('observacao','')))
     conn.commit()
     conn.close()
     registrar_log(session['user_id'], session['user_nome'], f"Criou OS {data['id_webluto']} — {data['nome_falecido']}", 'ordens_servico', os_id)
@@ -356,11 +373,11 @@ def editar_os(os_id):
 
     conn.execute("DELETE FROM itens_os WHERE os_id=?", (os_id,))
     for item in data.get('itens', []):
-        conn.execute('''INSERT INTO itens_os (os_id, fornecedor_id, fornecedor_nome, fornecedor_endereco, produto_id, produto_nome, observacao)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)''',
+        conn.execute('''INSERT INTO itens_os (os_id, fornecedor_id, fornecedor_nome, fornecedor_endereco, produto_id, produto_nome, custo, motorista_id, observacao)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                      (os_id, item.get('fornecedor_id'), item.get('fornecedor_nome',''),
                       item.get('fornecedor_endereco',''), item.get('produto_id'), item.get('produto_nome',''),
-                      item.get('observacao','')))
+                      item.get('custo', 0), item.get('motorista_id'), item.get('observacao','')))
     conn.commit()
 
     os_nov = dict(conn.execute("SELECT * FROM ordens_servico WHERE id=?", (os_id,)).fetchone())
@@ -408,11 +425,12 @@ def exportar():
     data_ini = request.args.get('data_ini', '')
     data_fim = request.args.get('data_fim', '')
     fornecedor = request.args.get('fornecedor', '')
+    produto = request.args.get('produto', '')
     conn = get_db()
     query = '''
         SELECT os.id_webluto, os.nome_falecido, os.horario_sepultamento, os.criado_em, os.status,
                u.nome as agente,
-               i.fornecedor_nome, i.fornecedor_endereco, i.produto_nome,
+               i.fornecedor_nome, i.fornecedor_endereco, i.produto_nome, i.custo,
                m.nome as motorista
         FROM ordens_servico os
         JOIN usuarios u ON os.agente_id = u.id
@@ -428,17 +446,22 @@ def exportar():
         query += " AND DATE(os.criado_em) <= ?"
         params.append(data_fim)
     if fornecedor:
-        query += " AND LOWER(i.fornecedor_nome) LIKE ?"
-        params.append(f'%{fornecedor.lower()}%')
+        query += " AND i.fornecedor_id = ?"
+        params.append(fornecedor)
+    if produto:
+        query += " AND i.produto_id = ?"
+        params.append(produto)
     rows = conn.execute(query, params).fetchall()
     conn.close()
     output = io.StringIO()
     writer = csv.writer(output, delimiter=';')
-    writer.writerow(['ID Web Luto', 'Falecido', 'Horário Sepultamento', 'Data OS', 'Status', 'Agente', 'Fornecedor', 'Endereço', 'Produto/Serviço', 'Motorista'])
+    writer.writerow(['ID Web Luto', 'Falecido', 'Horário Sepultamento', 'Data OS', 'Status', 'Agente', 'Fornecedor', 'Endereço', 'Produto/Serviço', 'Custo (R$)', 'Motorista'])
     for r in rows:
         writer.writerow([r['id_webluto'], r['nome_falecido'], r['horario_sepultamento'] or '',
                          r['criado_em'][:10], r['status'], r['agente'],
-                         r['fornecedor_nome'], r['fornecedor_endereco'], r['produto_nome'], r['motorista'] or ''])
+                         r['fornecedor_nome'], r['fornecedor_endereco'], r['produto_nome'],
+                         f"{r['custo']:.2f}".replace('.',',') if r['custo'] else '0,00',
+                         r['motorista'] or ''])
     resp = make_response('\ufeff' + output.getvalue())
     resp.headers['Content-Type'] = 'text/csv; charset=utf-8'
     resp.headers['Content-Disposition'] = 'attachment; filename=relatorio_os.csv'
