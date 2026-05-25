@@ -224,6 +224,26 @@ tr:hover td{background:var(--surface2)}
           </table>
         </div>
       </div>
+      <!-- Card de configuração de juros de cartão -->
+      <div class="card" style="max-width:440px">
+        <div class="card-header">
+          <span class="card-title">Juros de Cartão</span>
+          <button class="btn btn-sm btn-primary" onclick="salvarJuros()">Salvar</button>
+        </div>
+        <div class="card-body">
+          <p style="font-size:11px;color:var(--text2);margin-bottom:14px">Percentual cobrado pelo operador de cartão. Será somado ao Custo Total das OS com pagamentos por crédito ou débito.</p>
+          <div class="grid-2">
+            <div class="field">
+              <label>Juros Crédito (%)</label>
+              <input type="number" id="juros-credito" min="0" step="0.01" placeholder="Ex: 3.5">
+            </div>
+            <div class="field">
+              <label>Juros Débito (%)</label>
+              <input type="number" id="juros-debito" min="0" step="0.01" placeholder="Ex: 1.5">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="page" id="page-fornecedores">
@@ -283,7 +303,7 @@ tr:hover td{background:var(--surface2)}
 
 <!-- MODAL OS -->
 <div class="modal-overlay" id="modal-os">
-  <div class="modal" style="max-width:740px">
+  <div class="modal" style="max-width:780px">
     <div class="modal-header">
       <span class="modal-title" id="modal-os-titulo">Nova Ordem de Serviço</span>
       <button class="modal-close" onclick="fecharModal('modal-os')">×</button>
@@ -291,20 +311,98 @@ tr:hover td{background:var(--surface2)}
     <div class="modal-body">
       <div id="os-alert" class="alert alert-error"></div>
       <input type="hidden" id="os-id-edit">
+
+      <!-- Linha 1: ID + Falecido -->
       <div class="grid-2">
-        <div class="field"><label>ID Web Luto *</label><input type="number" id="os-webluto" placeholder="Ex: 12345" min="1" step="1"></div>
+        <div class="field"><label>ID *</label><input type="number" id="os-webluto" placeholder="Ex: 12345" min="1" step="1"></div>
         <div class="field"><label>Nome do Falecido *</label><input type="text" id="os-falecido"></div>
       </div>
+
+      <!-- Linha 2: Data Sepultamento + Convênio -->
       <div class="grid-2">
-        <div class="field"><label>Horário de Sepultamento</label><input type="datetime-local" id="os-horario" step="60"></div>
-        <div class="field"><label>Observações</label><input type="text" id="os-obs"></div>
+        <div class="field"><label>Data de Sepultamento</label><input type="datetime-local" id="os-horario" step="60"></div>
+        <div class="field"><label>Convênio</label><input type="text" id="os-convenio" placeholder="Ex: Bradesco Saúde"></div>
       </div>
+
+      <!-- Linha 3: Agente Captação + Agente Atendimento -->
+      <div class="grid-2">
+        <div class="field"><label>Agente Captação</label>
+          <select id="os-agente-captacao"><option value="">Selecione...</option></select>
+        </div>
+        <div class="field"><label>Agente Atendimento</label>
+          <select id="os-agente-atendimento"><option value="">Selecione...</option></select>
+        </div>
+      </div>
+
+      <!-- Observações -->
+      <div class="field"><label>Observações</label><input type="text" id="os-obs"></div>
+
+      <!-- SERVIÇOS -->
       <div class="divider"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2)">Serviços</span>
         <button class="btn btn-sm" onclick="abrirSeletorServico()">+ Adicionar Serviço</button>
       </div>
       <div id="itens-container"></div>
+
+      <!-- FORMAS DE PAGAMENTO -->
+      <div class="divider"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2)">Formas de Pagamento</span>
+        <button class="btn btn-sm" onclick="abrirAdicionarPagamento()">+ Adicionar</button>
+      </div>
+
+      <!-- Formulário inline de pagamento (fica aberto para adicionar múltiplos) -->
+      <div id="pagamento-form" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+          <div class="field" style="margin-bottom:0;min-width:130px;flex:2">
+            <label>Tipo</label>
+            <select id="pag-tipo" onchange="onPagTipoChange()">
+              <option value="pix">Pix</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="faturamento">Faturamento</option>
+              <option value="debito">Débito</option>
+              <option value="credito">Crédito</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0;min-width:90px;flex:1;display:none" id="pag-parcelas-wrap">
+            <label>Parcelas</label>
+            <input type="number" id="pag-parcelas" min="1" max="48" value="1">
+          </div>
+          <div class="field" style="margin-bottom:0;min-width:130px;flex:2">
+            <label>Valor R$</label>
+            <input type="number" id="pag-valor" min="0" step="0.01" placeholder="0,00"
+                   onkeydown="if(event.key==='Enter')confirmarAdicionarPagamento()">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-sm btn-primary" onclick="confirmarAdicionarPagamento()">+ Adicionar</button>
+          <button class="btn btn-sm" onclick="document.getElementById('pagamento-form').style.display='none'">Fechar</button>
+        </div>
+      </div>
+
+      <!-- Lista de pagamentos adicionados -->
+      <div id="pagamentos-container"></div>
+
+      <!-- RESUMO FINANCEIRO -->
+      <div class="divider"></div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:10px">Resumo Financeiro</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+          <div>
+            <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Valor Total</span>
+            <span id="resumo-valor-total" style="font-size:16px;color:var(--accent);font-weight:500">R$ 0,00</span>
+          </div>
+          <div>
+            <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Custo Total</span>
+            <span id="resumo-custo-total" style="font-size:16px;color:var(--danger);font-weight:500">R$ 0,00</span>
+          </div>
+          <div>
+            <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">Comissão (4%)</span>
+            <span id="resumo-comissao" style="font-size:16px;color:var(--success);font-weight:500">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="fecharModal('modal-os')">Cancelar</button>
@@ -544,8 +642,14 @@ tr:hover td{background:var(--surface2)}
 
 <script>
 // ── STATE ──────────────────────────────────────────────────────────────────
-let state = { user: null, os: [], servicos: [], fornecedores: [], motoristas: [], usuarios: [], unidades: [] };
+let state = {
+  user: null, os: [], servicos: [], fornecedores: [],
+  motoristas: [], usuarios: [], unidades: [],
+  agentes: [],       // agentes/admins para selects de captação/atendimento
+  config: {}         // configurações do sistema (juros de cartão, etc.)
+};
 let itensBlocoAtual = [];
+let pagamentosAtual = [];   // formas de pagamento da OS em edição
 let fornecedorEditandoId = null;
 let servicoEditandoId = null;
 
@@ -625,22 +729,25 @@ function mostrarPagina(id) {
   document.querySelector(`[data-page="${id}"]`)?.classList.add('active');
   if (id==='os') renderOS();
   if (id==='exportar') preencherFiltrosExport();
-  if (id==='servicos') renderServicos();
+  if (id==='servicos') { renderServicos(); carregarJuros(); }
   if (id==='fornecedores') renderFornecedores();
   if (id==='usuarios') { renderUsuarios(); renderUnidades(); }
   if (id==='logs') carregarLogs();
 }
 
 async function carregarDados() {
-  const [osR, servR, fornR, motR, unidR] = await Promise.all([
+  const [osR, servR, fornR, motR, unidR, agR, confR] = await Promise.all([
     api('GET','/os'), api('GET','/servicos'), api('GET','/fornecedores'),
-    api('GET','/motoristas'), api('GET','/unidades')
+    api('GET','/motoristas'), api('GET','/unidades'),
+    api('GET','/agentes'), api('GET','/config')
   ]);
   if (osR.ok) state.os = osR.data;
   if (servR.ok) state.servicos = servR.data;
   if (fornR.ok) state.fornecedores = fornR.data;
   if (motR.ok) state.motoristas = motR.data;
   if (unidR.ok) state.unidades = unidR.data;
+  if (agR.ok) state.agentes = agR.data;
+  if (confR.ok) state.config = confR.data;
   if (state.user.perfil === 'admin') {
     const ur = await api('GET', '/usuarios');
     if (ur.ok) state.usuarios = ur.data;
@@ -697,6 +804,12 @@ function renderOS() {
     const horario = os.horario_sepultamento ? formatDateTime(os.horario_sepultamento) : '';
     const isConcluida = os.status === 'concluida';
     const podeEditar = ['agente','admin'].includes(p) && !isConcluida;
+    // Calcula valor total dos pagamentos para exibir na listagem
+    const pagamentos = os.pagamentos || [];
+    const valorTotal = pagamentos.reduce((s, pg) => s + (parseFloat(pg.valor) || 0), 0);
+    const valorStr = valorTotal > 0
+      ? `<span style="font-size:11px;color:var(--success);font-weight:500">R$ ${valorTotal.toFixed(2).replace('.',',')}</span>`
+      : '';
     return `
     <div class="os-card">
       <div class="os-card-header" onclick="toggleOS(${os.id})">
@@ -705,12 +818,14 @@ function renderOS() {
           <span style="font-size:13px">${os.nome_falecido}</span>
           <span class="tag tag-${os.status}">${os.status}</span>
           ${os.unidade_nome ? `<span style="font-size:11px;color:var(--accent);opacity:.7">${os.unidade_nome}</span>` : ''}
+          ${os.convenio ? `<span style="font-size:11px;color:var(--text2)">• ${os.convenio}</span>` : ''}
         </div>
         <div class="os-meta">
           ${horario ? `<span>⏰ ${horario}</span>` : ''}
           <span>${os.agente_nome}</span>
           <span>${formatDate(os.criado_em)}</span>
           <span style="color:var(--text3)">${os.itens.length} item(s)</span>
+          ${valorStr}
           <button class="btn btn-sm" onclick="event.stopPropagation();visualizarOS(${os.id})">👁 Ver</button>
           ${podeEditar ? `<button class="btn btn-sm" onclick="event.stopPropagation();editarOS(${os.id})">Editar</button>` : ''}
           ${podeEditar ? `<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();abrirFecharOS(${os.id},'${os.id_webluto} — ${(os.nome_falecido||'').replace(/'/g,"\\'")}')">Fechar OS</button>` : ''}
@@ -747,14 +862,19 @@ function tryParse(str, def) { try { return str ? JSON.parse(str) : def; } catch 
 // ── MODAL OS ───────────────────────────────────────────────────────────────
 function abrirModalOS() {
   itensBlocoAtual = [];
+  pagamentosAtual = [];
   document.getElementById('os-id-edit').value = '';
   document.getElementById('os-webluto').value = '';
   document.getElementById('os-falecido').value = '';
   document.getElementById('os-horario').value = '';
   document.getElementById('os-obs').value = '';
+  document.getElementById('os-convenio').value = '';
+  document.getElementById('pagamento-form').style.display = 'none';
   document.getElementById('itens-container').innerHTML = '';
   document.getElementById('modal-os-titulo').textContent = 'Nova Ordem de Serviço';
   hideAlert('os-alert');
+  preencherSelectAgentes();
+  renderPagamentos();
   abrirModal('modal-os');
 }
 
@@ -762,14 +882,21 @@ function editarOS(id) {
   const os = state.os.find(o => o.id === id);
   if (!os) return;
   itensBlocoAtual = [];
+  pagamentosAtual = (os.pagamentos || []).map(p => ({...p}));
   document.getElementById('os-id-edit').value = os.id;
   document.getElementById('os-webluto').value = os.id_webluto;
   document.getElementById('os-falecido').value = os.nome_falecido;
   document.getElementById('os-horario').value = os.horario_sepultamento ? os.horario_sepultamento.replace(' ','T').substring(0,16) : '';
   document.getElementById('os-obs').value = os.observacoes || '';
+  document.getElementById('os-convenio').value = os.convenio || '';
+  document.getElementById('pagamento-form').style.display = 'none';
   document.getElementById('modal-os-titulo').textContent = 'Editar OS — ' + os.id_webluto;
   document.getElementById('itens-container').innerHTML = '';
   hideAlert('os-alert');
+  preencherSelectAgentes();
+  // Seta os agentes depois de popular o select
+  document.getElementById('os-agente-captacao').value = os.agente_captacao_id || '';
+  document.getElementById('os-agente-atendimento').value = os.agente_atendimento_id || '';
   os.itens.forEach(item => {
     const serv = state.servicos.find(s => s.id === item.servico_id) || { modo: item.servico_modo, opcoes: [], requer_faixas: 0, requer_observacao: 0 };
     const bloco = {
@@ -791,6 +918,7 @@ function editarOS(id) {
     itensBlocoAtual.push(bloco);
     renderBlocos();
   });
+  renderPagamentos();
   abrirModal('modal-os');
 }
 
@@ -885,6 +1013,7 @@ function onBlocoFornChange(idx) {
     itensBlocoAtual[idx].fornecedor_endereco = opt.dataset.endereco || '';
     itensBlocoAtual[idx].custo = parseFloat(opt.dataset.custo || 0);
   }
+  calcularTotais();
 }
 
 function onQtdChange(idx) {
@@ -893,6 +1022,7 @@ function onQtdChange(idx) {
   if (itensBlocoAtual[idx].requer_faixas) {
     renderFaixas(idx, qtd, itensBlocoAtual[idx].faixas || []);
   }
+  calcularTotais();
 }
 
 function renderFaixas(idx, qtd, valoresAtuais) {
@@ -919,6 +1049,7 @@ function toggleOpcao(idx, nome, el) {
 function removerBloco(idx) {
   itensBlocoAtual.splice(idx, 1);
   renderBlocos();
+  calcularTotais();
 }
 
 // ── SELETOR DE SERVIÇO ─────────────────────────────────────────────────────
@@ -1027,7 +1158,11 @@ async function salvarOS() {
     nome_falecido: falecido,
     horario_sepultamento: document.getElementById('os-horario').value || '',
     observacoes: document.getElementById('os-obs').value.trim(),
-    itens
+    convenio: document.getElementById('os-convenio').value.trim(),
+    agente_captacao_id: parseInt(document.getElementById('os-agente-captacao').value) || null,
+    agente_atendimento_id: parseInt(document.getElementById('os-agente-atendimento').value) || null,
+    itens,
+    pagamentos: pagamentosAtual
   };
 
   const r = idEdit ? await api('PUT', `/os/${idEdit}`, payload) : await api('POST', '/os', payload);
@@ -1107,6 +1242,57 @@ function visualizarOS(id) {
     </div>`;
   }).join('');
 
+  // Cálculo financeiro para visualização
+  const pagamentos = os.pagamentos || [];
+  const valorTotal = pagamentos.reduce((s, p) => s + (parseFloat(p.valor) || 0), 0);
+  const custoServicos = os.itens.reduce((s, i) => {
+    const c = parseFloat(i.custo) || 0;
+    const q = i.servico_modo === 'quantitativo' ? (parseInt(i.quantidade) || 1) : 1;
+    return s + c * q;
+  }, 0);
+  const jc = parseFloat(state.config.juros_credito || 0) / 100;
+  const jd = parseFloat(state.config.juros_debito || 0) / 100;
+  const custoJuros = pagamentos.reduce((s, p) => {
+    const v = parseFloat(p.valor) || 0;
+    if (p.tipo === 'credito') return s + v * jc;
+    if (p.tipo === 'debito')  return s + v * jd;
+    return s;
+  }, 0);
+  const custoTotal = custoServicos + custoJuros;
+  const comissao = (valorTotal - custoTotal) * 0.04;
+  const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',');
+
+  const tipoLabel = {pix:'Pix',dinheiro:'Dinheiro',faturamento:'Faturamento',debito:'Débito',credito:'Crédito'};
+  const pagHtml = pagamentos.length ? `
+    <div style="border-top:1px solid var(--border);padding:12px 20px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Formas de Pagamento</div>
+      ${pagamentos.map(p => {
+        const lab = tipoLabel[p.tipo] || p.tipo;
+        const parc = p.tipo === 'credito' && p.parcelas > 1 ? ` (${p.parcelas}x)` : '';
+        return `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid var(--border)">
+          <span>${lab}${parc}</span>
+          <span style="color:var(--accent)">${fmt(parseFloat(p.valor)||0)}</span>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
+  const resumoHtml = `
+    <div style="border-top:1px solid var(--border);padding:12px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div>
+        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Valor Total</span>
+        <span style="font-size:15px;color:var(--accent);font-weight:500">${fmt(valorTotal)}</span>
+      </div>
+      <div>
+        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Custo Total</span>
+        <span style="font-size:15px;color:var(--danger);font-weight:500">${fmt(custoTotal)}</span>
+        ${custoJuros > 0 ? `<span style="font-size:10px;color:var(--text3);display:block">incl. juros ${fmt(custoJuros)}</span>` : ''}
+      </div>
+      <div>
+        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Comissão (4%)</span>
+        <span style="font-size:15px;font-weight:500;color:${comissao >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmt(comissao)}</span>
+      </div>
+    </div>`;
+
   document.getElementById('modal-visualizar-body').innerHTML = `
     <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px">
       <div style="background:var(--surface2);padding:16px 20px;border-bottom:1px solid var(--border)">
@@ -1118,19 +1304,33 @@ function visualizarOS(id) {
       </div>
       <div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
         <div>
-          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Horário Sepultamento</span>
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Data Sepultamento</span>
           <span style="font-size:15px;font-weight:500">${horario}</span>
         </div>
         <div>
-          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Agente</span>
-          <span style="font-size:15px">${os.agente_nome}</span>
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Convênio</span>
+          <span style="font-size:14px;color:var(--accent)">${os.convenio||'—'}</span>
         </div>
         <div>
           <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Unidade</span>
-          <span style="font-size:15px;color:var(--accent)">${os.unidade_nome||'—'}</span>
+          <span style="font-size:14px;color:var(--accent)">${os.unidade_nome||'—'}</span>
+        </div>
+        <div>
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Agente</span>
+          <span style="font-size:14px">${os.agente_nome}</span>
+        </div>
+        <div>
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Agente Captação</span>
+          <span style="font-size:14px">${os.agente_captacao_nome||'—'}</span>
+        </div>
+        <div>
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px">Agente Atendimento</span>
+          <span style="font-size:14px">${os.agente_atendimento_nome||'—'}</span>
         </div>
       </div>
       ${os.observacoes ? `<div style="border-top:1px solid var(--border);padding:10px 20px;font-size:13px;color:var(--text2)">📝 ${os.observacoes}</div>` : ''}
+      ${pagHtml}
+      ${resumoHtml}
     </div>
     <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:10px">${os.itens.length} serviço(s)</div>
     ${itensHtml}`;
@@ -1149,15 +1349,31 @@ function visualizarOS(id) {
     </div>`;
   }).join('');
 
+  const printPagamentos = pagamentos.length ? pagamentos.map(p => {
+    const lab = tipoLabel[p.tipo] || p.tipo;
+    const parc = p.tipo === 'credito' && p.parcelas > 1 ? ` (${p.parcelas}x)` : '';
+    return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0">
+      <span>${lab}${parc}</span><span>${fmt(parseFloat(p.valor)||0)}</span></div>`;
+  }).join('') : '<span style="color:#888;font-size:12px">Nenhum pagamento</span>';
+
   document.getElementById('print-area').innerHTML = `
     <div class="ph"><h1>OS ${os.id_webluto}</h1><div class="ph-sub">${os.nome_falecido}</div></div>
     <div class="pm">
-      <div class="pm-item"><label>Horário Sepultamento</label><span>${horario}</span></div>
-      <div class="pm-item"><label>Agente</label><span>${os.agente_nome}</span></div>
+      <div class="pm-item"><label>Data Sepultamento</label><span>${horario}</span></div>
+      <div class="pm-item"><label>Convênio</label><span>${os.convenio||'—'}</span></div>
       <div class="pm-item"><label>Unidade</label><span>${os.unidade_nome||'—'}</span></div>
-      <div class="pm-item"><label>Data OS</label><span>${formatDate(os.criado_em)}</span></div>
+      <div class="pm-item"><label>Agente</label><span>${os.agente_nome}</span></div>
+      <div class="pm-item"><label>Agente Captação</label><span>${os.agente_captacao_nome||'—'}</span></div>
+      <div class="pm-item"><label>Agente Atendimento</label><span>${os.agente_atendimento_nome||'—'}</span></div>
     </div>
     <div class="pi-title">Serviços</div>${printItens}
+    <div class="pi-title" style="margin-top:12px">Formas de Pagamento</div>
+    <div style="border:1px solid #ddd;padding:8px 12px;border-radius:3px">${printPagamentos}</div>
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div><label style="font-size:9px;text-transform:uppercase;color:#666;display:block">Valor Total</label><strong>${fmt(valorTotal)}</strong></div>
+      <div><label style="font-size:9px;text-transform:uppercase;color:#666;display:block">Custo Total</label><strong>${fmt(custoTotal)}</strong></div>
+      <div><label style="font-size:9px;text-transform:uppercase;color:#666;display:block">Comissão (4%)</label><strong>${fmt(comissao)}</strong></div>
+    </div>
     ${os.observacoes ? `<div style="margin-top:12px;padding:8px;background:#f9f9f9;font-size:12px;color:#555">Obs: ${os.observacoes}</div>` : ''}`;
 
   abrirModal('modal-visualizar');
@@ -1178,6 +1394,141 @@ async function salvarAtribuicao() {
   const motoristaId = document.getElementById('atr-motorista').value || null;
   const r = await api('POST', `/item/${itemId}/atribuir`, { motorista_id: motoristaId ? parseInt(motoristaId) : null });
   if (r.data.ok) { fecharModal('modal-atribuir'); await carregarDados(); renderOS(); }
+}
+
+// ── AGENTES (SELECTS) ─────────────────────────────────────────────────────
+function preencherSelectAgentes() {
+  const opts = '<option value="">Selecione...</option>' +
+    state.agentes.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+  document.getElementById('os-agente-captacao').innerHTML = opts;
+  document.getElementById('os-agente-atendimento').innerHTML = opts;
+}
+
+// ── FORMAS DE PAGAMENTO ───────────────────────────────────────────────────
+function renderPagamentos() {
+  const container = document.getElementById('pagamentos-container');
+  if (!container) return;
+  const tipoLabel = {pix:'Pix',dinheiro:'Dinheiro',faturamento:'Faturamento',debito:'Débito',credito:'Crédito'};
+  if (!pagamentosAtual.length) {
+    container.innerHTML = '<p style="font-size:12px;color:var(--text3);padding:4px 0 8px">Nenhuma forma de pagamento adicionada.</p>';
+  } else {
+    container.innerHTML = pagamentosAtual.map((p, idx) => {
+      const lab = tipoLabel[p.tipo] || p.tipo;
+      const parc = p.tipo === 'credito' && p.parcelas > 1
+        ? `<span style="font-size:10px;color:var(--text2);margin-left:4px">${p.parcelas}x</span>` : '';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:5px">
+        <span style="flex:1;font-size:12px">${lab}${parc}</span>
+        <span style="font-size:13px;color:var(--accent);font-weight:500">R$ ${(parseFloat(p.valor)||0).toFixed(2).replace('.',',')}</span>
+        <button class="btn btn-sm btn-danger" onclick="removerPagamento(${idx})">×</button>
+      </div>`;
+    }).join('');
+  }
+  calcularTotais();
+}
+
+function abrirAdicionarPagamento() {
+  const f = document.getElementById('pagamento-form');
+  if (f.style.display === 'none') {
+    f.style.display = 'block';
+    document.getElementById('pag-tipo').value = 'pix';
+    document.getElementById('pag-valor').value = '';
+    document.getElementById('pag-parcelas').value = '1';
+    onPagTipoChange();
+    document.getElementById('pag-valor').focus();
+  } else {
+    f.style.display = 'none';
+  }
+}
+
+function onPagTipoChange() {
+  const tipo = document.getElementById('pag-tipo').value;
+  document.getElementById('pag-parcelas-wrap').style.display = tipo === 'credito' ? 'block' : 'none';
+}
+
+function confirmarAdicionarPagamento() {
+  const tipo = document.getElementById('pag-tipo').value;
+  const valor = parseFloat(document.getElementById('pag-valor').value);
+  if (!valor || valor <= 0) { alert('Informe um valor válido para o pagamento.'); return; }
+  const parcelas = tipo === 'credito' ? (parseInt(document.getElementById('pag-parcelas').value) || 1) : 1;
+  pagamentosAtual.push({ tipo, valor, parcelas });
+  renderPagamentos();
+  // Reseta só o valor — mantém o form aberto para adicionar múltiplos pagamentos rapidamente
+  document.getElementById('pag-valor').value = '';
+  document.getElementById('pag-parcelas').value = '1';
+  document.getElementById('pag-valor').focus();
+}
+
+function removerPagamento(idx) {
+  pagamentosAtual.splice(idx, 1);
+  renderPagamentos();
+}
+
+// ── CÁLCULO AUTOMÁTICO DE TOTAIS ──────────────────────────────────────────
+function calcularTotais() {
+  // Valor Total = soma de todos os pagamentos
+  const valorTotal = pagamentosAtual.reduce((s, p) => s + (parseFloat(p.valor) || 0), 0);
+
+  // Custo dos serviços = soma dos custos dos itens (quantidade × custo unitário)
+  let custoServicos = 0;
+  itensBlocoAtual.forEach((bloco, idx) => {
+    const selForn = document.getElementById(`bloco-forn-${idx}`);
+    const custo = (selForn && selForn.value)
+      ? parseFloat(selForn.options[selForn.selectedIndex]?.dataset.custo || bloco.custo || 0)
+      : parseFloat(bloco.custo || 0);
+    const qtd = bloco.servico_modo === 'quantitativo'
+      ? (parseInt(document.getElementById(`bloco-qtd-${idx}`)?.value) || 1)
+      : 1;
+    custoServicos += custo * qtd;
+  });
+
+  // Custo dos juros de cartão (crédito / débito)
+  const jc = parseFloat(state.config.juros_credito || 0) / 100;
+  const jd = parseFloat(state.config.juros_debito || 0) / 100;
+  let custoJuros = 0;
+  pagamentosAtual.forEach(p => {
+    const v = parseFloat(p.valor) || 0;
+    if (p.tipo === 'credito') custoJuros += v * jc;
+    else if (p.tipo === 'debito')  custoJuros += v * jd;
+  });
+
+  const custoTotal = custoServicos + custoJuros;
+  const comissao   = (valorTotal - custoTotal) * 0.04;
+
+  const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',');
+  const elVT  = document.getElementById('resumo-valor-total');
+  const elCT  = document.getElementById('resumo-custo-total');
+  const elCom = document.getElementById('resumo-comissao');
+  if (elVT)  elVT.textContent  = fmt(valorTotal);
+  if (elCT)  elCT.textContent  = fmt(custoTotal);
+  if (elCom) {
+    elCom.textContent = fmt(comissao);
+    elCom.style.color = comissao >= 0 ? 'var(--success)' : 'var(--danger)';
+  }
+}
+
+// ── JUROS DE CARTÃO ───────────────────────────────────────────────────────
+async function carregarJuros() {
+  const r = await api('GET', '/config');
+  if (r.ok) {
+    state.config = r.data;
+    const elC = document.getElementById('juros-credito');
+    const elD = document.getElementById('juros-debito');
+    if (elC) elC.value = r.data.juros_credito || '';
+    if (elD) elD.value = r.data.juros_debito || '';
+  }
+}
+
+async function salvarJuros() {
+  const jc = parseFloat(document.getElementById('juros-credito').value) || 0;
+  const jd = parseFloat(document.getElementById('juros-debito').value) || 0;
+  const r = await api('PUT', '/config', { juros_credito: jc, juros_debito: jd });
+  if (r.data.ok) {
+    state.config.juros_credito = jc;
+    state.config.juros_debito  = jd;
+    alert('Juros salvos com sucesso!');
+  } else {
+    alert('Erro ao salvar juros.');
+  }
 }
 
 // ── SERVIÇOS ───────────────────────────────────────────────────────────────
