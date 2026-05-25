@@ -34,8 +34,7 @@ textarea{resize:vertical;min-height:60px}
 .badge-perfil{padding:2px 8px;border-radius:20px;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
 .badge-admin{background:#2a1f0a;color:var(--accent);border:1px solid #3a2f1a}
 .badge-agente{background:#0a1f2a;color:var(--info);border:1px solid #1a2f3a}
-.badge-motorista{background:#0a2a1a;color:var(--success);border:1px solid #1a3a2a}
-.badge-visualizador{background:#1a1a2a;color:#8a8ac0;border:1px solid #2a2a3a}
+.badge-gerente{background:#1a1a0a;color:var(--warn);border:1px solid #3a3a1a}
 .nav{display:flex;gap:2px;padding:12px 24px 0;border-bottom:1px solid var(--border);background:var(--surface)}
 .nav-item{padding:8px 16px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px}
 .nav-item:hover{color:var(--text)}
@@ -55,6 +54,7 @@ tr:hover td{background:var(--surface2)}
 .tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
 .tag-aberta{background:#0a1f2a;color:var(--info)}
 .tag-concluida{background:#0a2a1a;color:var(--success)}
+.tag-concluido{background:#1a1a0a;color:var(--warn)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto}
 .modal-overlay.open{display:flex}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);width:100%;max-width:700px;position:relative}
@@ -161,7 +161,8 @@ tr:hover td{background:var(--surface2)}
           <select id="filtro-status" onchange="renderOS()">
             <option value="">Todos</option>
             <option value="aberta">Aberta</option>
-            <option value="concluida">Concluída</option>
+            <option value="concluido">Concluído</option>
+            <option value="concluida">Finalizada</option>
           </select>
         </div>
         <div class="field" style="min-width:130px;flex:1">
@@ -206,6 +207,12 @@ tr:hover td{background:var(--surface2)}
           <div class="field"><label>Fornecedor específico (opcional)</label>
             <select id="exp-fornecedor"><option value="">Todos os fornecedores</option></select>
           </div>
+          <div class="field"><label>Convênio (opcional)</label>
+            <select id="exp-convenio"><option value="">Todos os convênios</option></select>
+          </div>
+          <div class="field"><label>Agente Captação/Atendimento</label>
+            <select id="exp-agente"><option value="">Todos os agentes</option></select>
+          </div>
           <button class="btn btn-primary btn-full" onclick="exportar()">⬇ Baixar CSV (Excel)</button>
         </div>
       </div>
@@ -231,16 +238,31 @@ tr:hover td{background:var(--surface2)}
           <button class="btn btn-sm btn-primary" onclick="salvarJuros()">Salvar</button>
         </div>
         <div class="card-body">
-          <p style="font-size:11px;color:var(--text2);margin-bottom:14px">Percentual cobrado pelo operador de cartão. Será somado ao Custo Total das OS com pagamentos por crédito ou débito.</p>
-          <div class="grid-2">
-            <div class="field">
-              <label>Juros Crédito (%)</label>
-              <input type="number" id="juros-credito" min="0" step="0.01" placeholder="Ex: 3.5">
-            </div>
-            <div class="field">
-              <label>Juros Débito (%)</label>
-              <input type="number" id="juros-debito" min="0" step="0.01" placeholder="Ex: 1.5">
-            </div>
+          <p style="font-size:11px;color:var(--text2);margin-bottom:14px">
+            Percentual cobrado pelo operador de cartão por parcelamento. Somado ao Custo Total quando houver pagamento em crédito ou débito.
+          </p>
+
+          <!-- Débito (parcela única) -->
+          <div class="field" style="max-width:180px;margin-bottom:16px">
+            <label>Débito (%)</label>
+            <input type="number" id="juros-debito" min="0" step="0.01" placeholder="Ex: 1.5">
+          </div>
+
+          <!-- Crédito por parcelas -->
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:8px">Crédito — por número de parcelas</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+            <div class="field" style="margin-bottom:0"><label>1x (%)</label><input type="number" id="juros-credito-1"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>2x (%)</label><input type="number" id="juros-credito-2"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>3x (%)</label><input type="number" id="juros-credito-3"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>4x (%)</label><input type="number" id="juros-credito-4"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>5x (%)</label><input type="number" id="juros-credito-5"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>6x (%)</label><input type="number" id="juros-credito-6"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>7x (%)</label><input type="number" id="juros-credito-7"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>8x (%)</label><input type="number" id="juros-credito-8"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>9x (%)</label><input type="number" id="juros-credito-9"  min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>10x (%)</label><input type="number" id="juros-credito-10" min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>11x (%)</label><input type="number" id="juros-credito-11" min="0" step="0.01" placeholder="0"></div>
+            <div class="field" style="margin-bottom:0"><label>12x (%)</label><input type="number" id="juros-credito-12" min="0" step="0.01" placeholder="0"></div>
           </div>
         </div>
       </div>
@@ -255,6 +277,21 @@ tr:hover td{background:var(--surface2)}
         <div style="overflow-x:auto">
           <table id="tabela-fornecedores">
             <thead><tr><th>Nome</th><th>Endereço</th><th>Contato</th><th>Serviços vinculados</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-convenios">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Convênios</span>
+          <button class="btn btn-sm btn-primary" onclick="abrirModalConvenio()">+ Novo Convênio</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table id="tabela-convenios">
+            <thead><tr><th>Nome</th><th>Ativo</th><th></th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -321,7 +358,9 @@ tr:hover td{background:var(--surface2)}
       <!-- Linha 2: Data Sepultamento + Convênio -->
       <div class="grid-2">
         <div class="field"><label>Data de Sepultamento</label><input type="datetime-local" id="os-horario" step="60"></div>
-        <div class="field"><label>Convênio</label><input type="text" id="os-convenio" placeholder="Ex: Bradesco Saúde"></div>
+        <div class="field"><label>Convênio</label>
+          <select id="os-convenio-id"><option value="">Sem convênio</option></select>
+        </div>
       </div>
 
       <!-- Linha 3: Agente Captação + Agente Atendimento -->
@@ -547,8 +586,8 @@ tr:hover td{background:var(--surface2)}
       <div class="grid-2">
         <div class="field"><label>Perfil</label>
           <select id="usr-perfil">
-            <option value="agente">Agente</option><option value="motorista">Motorista</option>
-            <option value="visualizador">Visualizador</option><option value="admin">Admin</option>
+            <option value="agente">Agente</option><option value="gerente">Gerente</option>
+            <option value="admin">Admin</option>
           </select>
         </div>
         <div class="field"><label>Unidade</label>
@@ -580,6 +619,24 @@ tr:hover td{background:var(--surface2)}
     <div class="modal-footer">
       <button class="btn" onclick="fecharModal('modal-unidade')">Cancelar</button>
       <button class="btn btn-primary" onclick="salvarUnidade()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONVÊNIO -->
+<div class="modal-overlay" id="modal-convenio">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <span class="modal-title">Convênio</span>
+      <button class="modal-close" onclick="fecharModal('modal-convenio')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="conv-id-edit">
+      <div class="field"><label>Nome *</label><input type="text" id="conv-nome"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="fecharModal('modal-convenio')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarConvenio()">Salvar</button>
     </div>
   </div>
 </div>
@@ -620,22 +677,42 @@ tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
+<!-- MODAL CONCLUIR OS -->
+<div class="modal-overlay" id="modal-concluir-os">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title" style="color:var(--warn)">Marcar como Concluído</span>
+      <button class="modal-close" onclick="fecharModal('modal-concluir-os')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="concluir-os-id">
+      <p style="font-size:13px;margin-bottom:6px">Concluindo a OS:</p>
+      <p style="font-size:15px;color:var(--accent);font-family:'DM Serif Display',serif;margin-bottom:14px" id="concluir-os-desc"></p>
+      <p style="font-size:12px;color:var(--text2)">A OS ficará aguardando finalização pelo gerente. Confirma?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="fecharModal('modal-concluir-os')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarConcluirOS()">Sim, concluir</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL FECHAR OS -->
 <div class="modal-overlay" id="modal-fechar-os">
   <div class="modal" style="max-width:400px">
     <div class="modal-header">
-      <span class="modal-title" style="color:var(--danger)">Fechar OS</span>
+      <span class="modal-title" style="color:var(--danger)">Finalizar OS</span>
       <button class="modal-close" onclick="fecharModal('modal-fechar-os')">×</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="fechar-os-id">
       <p style="font-size:13px;margin-bottom:6px">Fechando a OS:</p>
       <p style="font-size:15px;color:var(--accent);font-family:'DM Serif Display',serif;margin-bottom:14px" id="fechar-os-desc"></p>
-      <p style="font-size:12px;color:var(--text2)">Após fechada não poderá ser editada. Confirma?</p>
+      <p style="font-size:12px;color:var(--text2)">A comissão será calculada e gravada. Após finalizada não poderá ser editada. Confirma?</p>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="fecharModal('modal-fechar-os')">Cancelar</button>
-      <button class="btn btn-danger" onclick="confirmarFechamentoOS()">Sim, fechar</button>
+      <button class="btn btn-danger" onclick="confirmarFechamentoOS()">Sim, finalizar</button>
     </div>
   </div>
 </div>
@@ -646,6 +723,7 @@ let state = {
   user: null, os: [], servicos: [], fornecedores: [],
   motoristas: [], usuarios: [], unidades: [],
   agentes: [],       // agentes/admins para selects de captação/atendimento
+  convenios: [],     // convênios cadastrados
   config: {}         // configurações do sistema (juros de cartão, etc.)
 };
 let itensBlocoAtual = [];
@@ -705,10 +783,11 @@ function buildNav() {
   const nav = document.getElementById('nav-bar');
   nav.innerHTML = '';
   const items = [{ id:'os', label:'Ordens de Serviço' }];
-  if (['admin','agente','visualizador'].includes(p)) items.push({id:'exportar',label:'Exportar'});
+  if (['admin','gerente'].includes(p)) items.push({id:'exportar',label:'Exportar'});
   if (p==='admin') {
     items.push({id:'servicos',label:'Serviços'});
     items.push({id:'fornecedores',label:'Fornecedores'});
+    items.push({id:'convenios',label:'Convênios'});
     items.push({id:'usuarios',label:'Usuários'});
     items.push({id:'logs',label:'Logs'});
   }
@@ -731,23 +810,25 @@ function mostrarPagina(id) {
   if (id==='exportar') preencherFiltrosExport();
   if (id==='servicos') { renderServicos(); carregarJuros(); }
   if (id==='fornecedores') renderFornecedores();
+  if (id==='convenios') renderConvenios();
   if (id==='usuarios') { renderUsuarios(); renderUnidades(); }
   if (id==='logs') carregarLogs();
 }
 
 async function carregarDados() {
-  const [osR, servR, fornR, motR, unidR, agR, confR] = await Promise.all([
+  const [osR, servR, fornR, motR, unidR, agR, confR, convR] = await Promise.all([
     api('GET','/os'), api('GET','/servicos'), api('GET','/fornecedores'),
     api('GET','/motoristas'), api('GET','/unidades'),
-    api('GET','/agentes'), api('GET','/config')
+    api('GET','/agentes'), api('GET','/config'), api('GET','/convenios')
   ]);
   if (osR.ok) state.os = osR.data;
   if (servR.ok) state.servicos = servR.data;
   if (fornR.ok) state.fornecedores = fornR.data;
   if (motR.ok) state.motoristas = motR.data;
   if (unidR.ok) state.unidades = unidR.data;
-  if (agR.ok) state.agentes = agR.data;
-  if (confR.ok) state.config = confR.data;
+  if (agR.ok && Array.isArray(agR.data)) state.agentes = agR.data;
+  if (confR.ok && confR.data && typeof confR.data === 'object') state.config = confR.data;
+  if (convR.ok && Array.isArray(convR.data)) state.convenios = convR.data;
   if (state.user.perfil === 'admin') {
     const ur = await api('GET', '/usuarios');
     if (ur.ok) state.usuarios = ur.data;
@@ -779,7 +860,7 @@ function renderOS() {
   const ordem = document.getElementById('filtro-ordem').value;
   const p = state.user.perfil;
   const btnWrap = document.getElementById('btn-nova-os');
-  if (['agente','admin'].includes(p)) btnWrap.innerHTML = '<button class="btn btn-primary" onclick="abrirModalOS()">+ Nova OS</button>';
+  if (p === 'agente' || p === 'admin') btnWrap.innerHTML = '<button class="btn btn-primary" onclick="abrirModalOS()">+ Nova OS</button>';
 
   let lista = [...state.os];
   if (busca) lista = lista.filter(o => o.id_webluto.includes(busca) || (o.nome_falecido||'').toLowerCase().includes(busca));
@@ -802,8 +883,14 @@ function renderOS() {
 
   container.innerHTML = lista.map(os => {
     const horario = os.horario_sepultamento ? formatDateTime(os.horario_sepultamento) : '';
-    const isConcluida = os.status === 'concluida';
-    const podeEditar = ['agente','admin'].includes(p) && !isConcluida;
+    const isFinalizada = os.status === 'concluida';
+    const isConcluido  = os.status === 'concluido';
+    const isAberta     = os.status === 'aberta';
+    // Agente: edita e conclui só OS abertas
+    const podeEditar   = p === 'admin' || (p === 'agente' && isAberta);
+    const podeConcluir = (p === 'agente' || p === 'admin') && isAberta;
+    // Gerente/Admin: finaliza OS que estão no estado 'concluido'
+    const podeFinalizar = ['gerente','admin'].includes(p) && (isConcluido || isAberta);
     // Calcula valor total dos pagamentos para exibir na listagem
     const pagamentos = os.pagamentos || [];
     const valorTotal = pagamentos.reduce((s, pg) => s + (parseFloat(pg.valor) || 0), 0);
@@ -827,8 +914,9 @@ function renderOS() {
           <span style="color:var(--text3)">${os.itens.length} item(s)</span>
           ${valorStr}
           <button class="btn btn-sm" onclick="event.stopPropagation();visualizarOS(${os.id})">👁 Ver</button>
-          ${podeEditar ? `<button class="btn btn-sm" onclick="event.stopPropagation();editarOS(${os.id})">Editar</button>` : ''}
-          ${podeEditar ? `<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();abrirFecharOS(${os.id},'${os.id_webluto} — ${(os.nome_falecido||'').replace(/'/g,"\\'")}')">Fechar OS</button>` : ''}
+          ${podeEditar    ? `<button class="btn btn-sm" onclick="event.stopPropagation();editarOS(${os.id})">Editar</button>` : ''}
+          ${podeConcluir  ? `<button class="btn btn-sm" style="border-color:var(--warn);color:var(--warn)" onclick="event.stopPropagation();abrirConcluirOS(${os.id},'${os.id_webluto} — ${(os.nome_falecido||'').replace(/'/g,"\\'")}')">✓ Concluir</button>` : ''}
+          ${podeFinalizar ? `<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();abrirFecharOS(${os.id},'${os.id_webluto} — ${(os.nome_falecido||'').replace(/'/g,"\\'")}')">Fechar OS</button>` : ''}
         </div>
       </div>
       <div class="os-body" id="os-body-${os.id}">
@@ -868,7 +956,7 @@ function abrirModalOS() {
   document.getElementById('os-falecido').value = '';
   document.getElementById('os-horario').value = '';
   document.getElementById('os-obs').value = '';
-  document.getElementById('os-convenio').value = '';
+  preencherSelectConvenios();
   document.getElementById('pagamento-form').style.display = 'none';
   document.getElementById('itens-container').innerHTML = '';
   document.getElementById('modal-os-titulo').textContent = 'Nova Ordem de Serviço';
@@ -888,7 +976,8 @@ function editarOS(id) {
   document.getElementById('os-falecido').value = os.nome_falecido;
   document.getElementById('os-horario').value = os.horario_sepultamento ? os.horario_sepultamento.replace(' ','T').substring(0,16) : '';
   document.getElementById('os-obs').value = os.observacoes || '';
-  document.getElementById('os-convenio').value = os.convenio || '';
+  preencherSelectConvenios();
+  document.getElementById('os-convenio-id').value = os.convenio_id || '';
   document.getElementById('pagamento-form').style.display = 'none';
   document.getElementById('modal-os-titulo').textContent = 'Editar OS — ' + os.id_webluto;
   document.getElementById('itens-container').innerHTML = '';
@@ -1158,7 +1247,7 @@ async function salvarOS() {
     nome_falecido: falecido,
     horario_sepultamento: document.getElementById('os-horario').value || '',
     observacoes: document.getElementById('os-obs').value.trim(),
-    convenio: document.getElementById('os-convenio').value.trim(),
+    convenio_id: parseInt(document.getElementById('os-convenio-id').value) || null,
     agente_captacao_id: parseInt(document.getElementById('os-agente-captacao').value) || null,
     agente_atendimento_id: parseInt(document.getElementById('os-agente-atendimento').value) || null,
     itens,
@@ -1173,6 +1262,20 @@ async function salvarOS() {
   } else {
     showAlert('os-alert', r.data.msg || 'Erro ao salvar');
   }
+}
+
+
+// ── CONCLUIR OS (intermediário — agente) ──────────────────────────────────
+function abrirConcluirOS(id, desc) {
+  document.getElementById('concluir-os-id').value = id;
+  document.getElementById('concluir-os-desc').textContent = desc;
+  abrirModal('modal-concluir-os');
+}
+async function confirmarConcluirOS() {
+  const id = document.getElementById('concluir-os-id').value;
+  const r = await api('POST', `/os/${id}/concluir`);
+  if (r.data.ok) { fecharModal('modal-concluir-os'); await carregarDados(); renderOS(); }
+  else alert(r.data.msg || 'Erro ao concluir');
 }
 
 // ── FECHAR OS ──────────────────────────────────────────────────────────────
@@ -1250,12 +1353,15 @@ function visualizarOS(id) {
     const q = i.servico_modo === 'quantitativo' ? (parseInt(i.quantidade) || 1) : 1;
     return s + c * q;
   }, 0);
-  const jc = parseFloat(state.config.juros_credito || 0) / 100;
   const jd = parseFloat(state.config.juros_debito || 0) / 100;
   const custoJuros = pagamentos.reduce((s, p) => {
     const v = parseFloat(p.valor) || 0;
-    if (p.tipo === 'credito') return s + v * jc;
-    if (p.tipo === 'debito')  return s + v * jd;
+    if (p.tipo === 'credito') {
+      const parc = Math.min(Math.max(parseInt(p.parcelas) || 1, 1), 12);
+      const taxa = parseFloat(state.config[`juros_credito_${parc}`] || 0) / 100;
+      return s + v * taxa;
+    }
+    if (p.tipo === 'debito') return s + v * jd;
     return s;
   }, 0);
   const custoTotal = custoServicos + custoJuros;
@@ -1398,8 +1504,9 @@ async function salvarAtribuicao() {
 
 // ── AGENTES (SELECTS) ─────────────────────────────────────────────────────
 function preencherSelectAgentes() {
+  const lista = Array.isArray(state.agentes) ? state.agentes : [];
   const opts = '<option value="">Selecione...</option>' +
-    state.agentes.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+    lista.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
   document.getElementById('os-agente-captacao').innerHTML = opts;
   document.getElementById('os-agente-atendimento').innerHTML = opts;
 }
@@ -1481,14 +1588,18 @@ function calcularTotais() {
     custoServicos += custo * qtd;
   });
 
-  // Custo dos juros de cartão (crédito / débito)
-  const jc = parseFloat(state.config.juros_credito || 0) / 100;
+  // Custo dos juros de cartão — crédito usa taxa da parcela específica, débito taxa única
   const jd = parseFloat(state.config.juros_debito || 0) / 100;
   let custoJuros = 0;
   pagamentosAtual.forEach(p => {
     const v = parseFloat(p.valor) || 0;
-    if (p.tipo === 'credito') custoJuros += v * jc;
-    else if (p.tipo === 'debito')  custoJuros += v * jd;
+    if (p.tipo === 'credito') {
+      const parc = Math.min(Math.max(parseInt(p.parcelas) || 1, 1), 12);
+      const taxa = parseFloat(state.config[`juros_credito_${parc}`] || 0) / 100;
+      custoJuros += v * taxa;
+    } else if (p.tipo === 'debito') {
+      custoJuros += v * jd;
+    }
   });
 
   const custoTotal = custoServicos + custoJuros;
@@ -1509,22 +1620,31 @@ function calcularTotais() {
 // ── JUROS DE CARTÃO ───────────────────────────────────────────────────────
 async function carregarJuros() {
   const r = await api('GET', '/config');
-  if (r.ok) {
+  if (r.ok && r.data && typeof r.data === 'object') {
     state.config = r.data;
-    const elC = document.getElementById('juros-credito');
+    // Preenche débito
     const elD = document.getElementById('juros-debito');
-    if (elC) elC.value = r.data.juros_credito || '';
     if (elD) elD.value = r.data.juros_debito || '';
+    // Preenche crédito 1x–12x
+    for (let i = 1; i <= 12; i++) {
+      const el = document.getElementById(`juros-credito-${i}`);
+      if (el) el.value = r.data[`juros_credito_${i}`] || '';
+    }
   }
 }
 
 async function salvarJuros() {
-  const jc = parseFloat(document.getElementById('juros-credito').value) || 0;
-  const jd = parseFloat(document.getElementById('juros-debito').value) || 0;
-  const r = await api('PUT', '/config', { juros_credito: jc, juros_debito: jd });
+  const payload = {};
+  // Débito
+  payload.juros_debito = parseFloat(document.getElementById('juros-debito').value) || 0;
+  // Crédito 1x–12x
+  for (let i = 1; i <= 12; i++) {
+    const el = document.getElementById(`juros-credito-${i}`);
+    payload[`juros_credito_${i}`] = el ? (parseFloat(el.value) || 0) : 0;
+  }
+  const r = await api('PUT', '/config', payload);
   if (r.data.ok) {
-    state.config.juros_credito = jc;
-    state.config.juros_debito  = jd;
+    Object.assign(state.config, payload);
     alert('Juros salvos com sucesso!');
   } else {
     alert('Erro ao salvar juros.');
@@ -1868,26 +1988,81 @@ async function salvarUnidade() {
     renderUnidades();
   } else alert(r.data.msg || 'Erro');
 }
-
-// ── EXPORTAR ───────────────────────────────────────────────────────────────
 function preencherFiltrosExport() {
   document.getElementById('exp-servico').innerHTML = '<option value="">Todos os serviços</option>' +
     state.servicos.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
   document.getElementById('exp-fornecedor').innerHTML = '<option value="">Todos os fornecedores</option>' +
     state.fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
+  document.getElementById('exp-convenio').innerHTML = '<option value="">Todos os convênios</option>' +
+    state.convenios.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  document.getElementById('exp-agente').innerHTML = '<option value="">Todos os agentes</option>' +
+    state.agentes.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
 }
 
 function exportar() {
-  const ini = document.getElementById('exp-data-ini').value;
-  const fim = document.getElementById('exp-data-fim').value;
+  const ini  = document.getElementById('exp-data-ini').value;
+  const fim  = document.getElementById('exp-data-fim').value;
   const serv = document.getElementById('exp-servico').value;
   const forn = document.getElementById('exp-fornecedor').value;
+  const conv = document.getElementById('exp-convenio').value;
+  const ag   = document.getElementById('exp-agente').value;
   let url = '/api/exportar?';
-  if (ini) url += `data_ini=${ini}&`;
-  if (fim) url += `data_fim=${fim}&`;
+  if (ini)  url += `data_ini=${ini}&`;
+  if (fim)  url += `data_fim=${fim}&`;
   if (serv) url += `servico=${serv}&`;
   if (forn) url += `fornecedor=${forn}&`;
+  if (conv) url += `convenio=${conv}&`;
+  if (ag)   url += `agente=${ag}&`;
   window.location.href = url;
+}
+
+// ── CONVÊNIOS ─────────────────────────────────────────────────────────────────
+function renderConvenios() {
+  const tbody = document.querySelector('#tabela-convenios tbody');
+  if (!tbody) return;
+  tbody.innerHTML = state.convenios.map(c => `
+    <tr>
+      <td>${c.nome}</td>
+      <td>${c.ativo ? '✓' : '✗'}</td>
+      <td><button class="btn btn-sm" onclick="editarConvenio(${c.id})">Editar</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="3" class="empty">Nenhum convênio.</td></tr>';
+}
+
+function abrirModalConvenio() {
+  document.getElementById('conv-id-edit').value = '';
+  document.getElementById('conv-nome').value = '';
+  abrirModal('modal-convenio');
+}
+
+function editarConvenio(id) {
+  const c = state.convenios.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('conv-id-edit').value = c.id;
+  document.getElementById('conv-nome').value = c.nome;
+  abrirModal('modal-convenio');
+}
+
+async function salvarConvenio() {
+  const id   = document.getElementById('conv-id-edit').value;
+  const nome = document.getElementById('conv-nome').value.trim();
+  if (!nome) return alert('Nome é obrigatório');
+  let r;
+  if (id) r = await api('PUT', `/convenios/${id}`, { nome, ativo: 1 });
+  else    r = await api('POST', '/convenios', { nome });
+  if (r.data.ok) {
+    fecharModal('modal-convenio');
+    const cr = await api('GET', '/convenios');
+    if (cr.ok) state.convenios = cr.data;
+    renderConvenios();
+  } else alert(r.data.msg || 'Erro ao salvar');
+}
+
+function preencherSelectConvenios() {
+  const sel = document.getElementById('os-convenio-id');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Sem convênio</option>' +
+    state.convenios.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
 }
 
 // ── LOGS ───────────────────────────────────────────────────────────────────
