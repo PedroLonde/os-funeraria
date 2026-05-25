@@ -81,6 +81,7 @@ def init_db():
         UNIQUE(fornecedor_id, servico_id)
     )''')
 
+    # Tabela principal de OS — inclui campos financeiros e de agentes
     c.execute('''CREATE TABLE IF NOT EXISTS ordens_servico (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         id_webluto TEXT UNIQUE NOT NULL,
@@ -90,9 +91,23 @@ def init_db():
         unidade_nome TEXT,
         status TEXT DEFAULT 'aberta',
         observacoes TEXT,
+        convenio TEXT DEFAULT '',
+        agente_captacao_id INTEGER,
+        agente_atendimento_id INTEGER,
         criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
         fechado_em TEXT
     )''')
+
+    # Migração para bancos de dados existentes (ignora erro se coluna já existir)
+    for migration_sql in [
+        "ALTER TABLE ordens_servico ADD COLUMN convenio TEXT DEFAULT ''",
+        "ALTER TABLE ordens_servico ADD COLUMN agente_captacao_id INTEGER",
+        "ALTER TABLE ordens_servico ADD COLUMN agente_atendimento_id INTEGER",
+    ]:
+        try:
+            c.execute(migration_sql)
+        except Exception:
+            pass
 
     c.execute('''CREATE TABLE IF NOT EXISTS itens_os (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,6 +125,25 @@ def init_db():
         observacao TEXT,
         motorista_id INTEGER
     )''')
+
+    # Pagamentos vinculados a cada OS
+    c.execute('''CREATE TABLE IF NOT EXISTS pagamentos_os (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        os_id INTEGER NOT NULL,
+        tipo TEXT NOT NULL,
+        valor REAL DEFAULT 0,
+        parcelas INTEGER DEFAULT 1
+    )''')
+
+    # Configurações gerais do sistema (ex: juros de cartão)
+    c.execute('''CREATE TABLE IF NOT EXISTS config_sistema (
+        chave TEXT PRIMARY KEY,
+        valor TEXT NOT NULL DEFAULT ''
+    )''')
+
+    # Valores padrão para juros de cartão
+    c.execute("INSERT OR IGNORE INTO config_sistema (chave, valor) VALUES ('juros_credito', '0')")
+    c.execute("INSERT OR IGNORE INTO config_sistema (chave, valor) VALUES ('juros_debito', '0')")
 
     c.execute('''CREATE TABLE IF NOT EXISTS logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -260,6 +294,18 @@ def editar_usuario(uid):
     conn.close()
     registrar_log(session['user_id'], session['user_nome'], f"Editou usuário ID {uid}")
     return jsonify({'ok': True})
+
+@app.route('/api/agentes')
+def listar_agentes():
+    """Retorna agentes e admins ativos — usado nos selects de Captação/Atendimento."""
+    if not require_auth():
+        return jsonify({'ok': False}), 401
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT id, nome FROM usuarios WHERE perfil IN ('agente','admin') AND ativo=1 ORDER BY nome"
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
 
 @app.route('/api/motoristas')
 def listar_motoristas():
@@ -434,8 +480,13 @@ def listar_os():
     if not require_auth():
         return jsonify({'ok': False}), 401
     conn = get_db()
-    rows = conn.execute('''SELECT os.*, u.nome as agente_nome
-                           FROM ordens_servico os JOIN usuarios u ON os.agente_id = u.id
+    rows = conn.execute('''SELECT os.*, u.nome as agente_nome,
+                           u2.nome as agente_captacao_nome,
+                           u3.nome as agente_atendimento_nome
+                           FROM ordens_servico os
+                           JOIN usuarios u ON os.agente_id = u.id
+                           LEFT JOIN usuarios u2 ON os.agente_captacao_id = u2.id
+                           LEFT JOIN usuarios u3 ON os.agente_atendimento_id = u3.id
                            ORDER BY os.criado_em DESC''').fetchall()
     result = []
     for r in rows:
@@ -444,6 +495,10 @@ def listar_os():
                                 FROM itens_os i LEFT JOIN usuarios u ON i.motorista_id = u.id
                                 WHERE i.os_id=?''', (r['id'],)).fetchall()
         os_dict['itens'] = [dict(i) for i in itens]
+        # Inclui formas de pagamento
+        pagamentos = conn.execute('SELECT * FROM pagamentos_os WHERE os_id=? ORDER BY id',
+                                  (r['id'],)).fetchall()
+        os_dict['pagamentos'] = [dict(p) for p in pagamentos]
         result.append(os_dict)
     conn.close()
     return jsonify(result)
@@ -461,6 +516,15 @@ def salvar_itens(conn, os_id, itens):
              json.dumps(item.get('faixas', []), ensure_ascii=False),
              item.get('observacao', '')))
 
+def salvar_pagamentos(conn, os_id, pagamentos):
+    """Insere as formas de pagamento de uma OS."""
+    for p in pagamentos:
+        conn.execute('''INSERT INTO pagamentos_os (os_id, tipo, valor, parcelas)
+                        VALUES (?, ?, ?, ?)''',
+                     (os_id, p.get('tipo', 'pix'),
+                      float(p.get('valor', 0)),
+                      int(p.get('parcelas', 1))))
+
 @app.route('/api/os', methods=['POST'])
 def criar_os():
     if not require_auth(['agente', 'admin']):
@@ -473,12 +537,17 @@ def criar_os():
         return jsonify({'ok': False, 'msg': f"ID Web Luto '{data['id_webluto']}' já está cadastrado"}), 400
     c = conn.cursor()
     c.execute('''INSERT INTO ordens_servico
-                 (id_webluto, nome_falecido, horario_sepultamento, agente_id, unidade_nome, observacoes)
-                 VALUES (?, ?, ?, ?, ?, ?)''',
+                 (id_webluto, nome_falecido, horario_sepultamento, agente_id, unidade_nome,
+                  observacoes, convenio, agente_captacao_id, agente_atendimento_id)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
               (data['id_webluto'], data['nome_falecido'], data.get('horario_sepultamento', ''),
-               session['user_id'], session.get('user_unidade', ''), data.get('observacoes', '')))
+               session['user_id'], session.get('user_unidade', ''), data.get('observacoes', ''),
+               data.get('convenio', ''),
+               data.get('agente_captacao_id') or None,
+               data.get('agente_atendimento_id') or None))
     os_id = c.lastrowid
     salvar_itens(conn, os_id, data.get('itens', []))
+    salvar_pagamentos(conn, os_id, data.get('pagamentos', []))
     conn.commit()
     conn.close()
     registrar_log(session['user_id'], session['user_nome'],
@@ -498,12 +567,20 @@ def editar_os(os_id):
         if existe:
             conn.close()
             return jsonify({'ok': False, 'msg': f"ID '{data['id_webluto']}' já está em uso"}), 400
-    conn.execute('''UPDATE ordens_servico SET id_webluto=?, nome_falecido=?, horario_sepultamento=?, observacoes=?
+    conn.execute('''UPDATE ordens_servico
+                    SET id_webluto=?, nome_falecido=?, horario_sepultamento=?, observacoes=?,
+                        convenio=?, agente_captacao_id=?, agente_atendimento_id=?
                     WHERE id=?''',
                  (data['id_webluto'], data['nome_falecido'],
-                  data.get('horario_sepultamento', ''), data.get('observacoes', ''), os_id))
+                  data.get('horario_sepultamento', ''), data.get('observacoes', ''),
+                  data.get('convenio', ''),
+                  data.get('agente_captacao_id') or None,
+                  data.get('agente_atendimento_id') or None,
+                  os_id))
     conn.execute("DELETE FROM itens_os WHERE os_id=?", (os_id,))
     salvar_itens(conn, os_id, data.get('itens', []))
+    conn.execute("DELETE FROM pagamentos_os WHERE os_id=?", (os_id,))
+    salvar_pagamentos(conn, os_id, data.get('pagamentos', []))
     conn.commit()
     registrar_log(session['user_id'], session['user_nome'], f"Editou OS ID {os_id}", dados_ant=os_ant)
     conn.close()
@@ -590,6 +667,30 @@ def listar_logs():
     rows = conn.execute("SELECT * FROM logs ORDER BY data_hora DESC LIMIT 200").fetchall()
     conn.close()
     return jsonify([dict(r) for r in rows])
+
+# CONFIGURAÇÕES DO SISTEMA (juros de cartão, etc.)
+@app.route('/api/config', methods=['GET'])
+def get_config():
+    if not require_auth():
+        return jsonify({'ok': False}), 401
+    conn = get_db()
+    rows = conn.execute("SELECT chave, valor FROM config_sistema").fetchall()
+    conn.close()
+    return jsonify({r['chave']: r['valor'] for r in rows})
+
+@app.route('/api/config', methods=['PUT'])
+def set_config():
+    if not require_auth(['admin']):
+        return jsonify({'ok': False}), 403
+    data = request.json
+    conn = get_db()
+    for chave, valor in data.items():
+        conn.execute("INSERT OR REPLACE INTO config_sistema (chave, valor) VALUES (?, ?)",
+                     (chave, str(valor)))
+    conn.commit()
+    conn.close()
+    registrar_log(session['user_id'], session['user_nome'], "Atualizou configurações do sistema")
+    return jsonify({'ok': True})
 
 @app.route('/')
 @app.route('/<path:path>')
