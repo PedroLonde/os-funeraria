@@ -891,10 +891,12 @@ def set_config():
 @app.route('/<path:path>')
 def index(path=''):
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    return send_from_directory(base_dir, 'index.html')
+    return send_from_directory(os.path.join(base_dir, 'templates'), 'index.html')
+
+# Inicializa o banco ao importar o módulo (necessário para gunicorn)
+init_db()
 
 if __name__ == '__main__':
-    init_db()
     print("Banco inicializado")
     print("Admin: login=admin / senha=admin123")
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
